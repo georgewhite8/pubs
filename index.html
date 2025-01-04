@@ -83,7 +83,7 @@
                 scoreInput.addEventListener('input', function () {
                     const scoreThreshold = parseInt(scoreInput.value);
 
-                    if (scoreThreshold >= 0 && scoreThreshold <= 25 {
+                    if (scoreThreshold >= 0 && scoreThreshold <= 25) {
                         scoreFilter.value = scoreThreshold;
                         scoreValue.textContent = scoreThreshold;
                         renderMarkers(allPubs, scoreThreshold);
