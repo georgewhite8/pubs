@@ -22,8 +22,12 @@
         <h1 class="test-center">London Pub Map</h1>
     </div>
     <label for="score-filter">Filter by Score (Total):</label>
-    <input type="range" id="score-filter" min="0" max="25" value="0" step="1" />
+    <input type="range" id="score-filter" min="0" max="25" value="0" step="1">
     <span id="score-value">0</span>
+
+    <label for='score-input'>Or type a score:</label>
+    <input type="number" id="score-input" min="0" max="25" value="0" step="1">
+
     <div id="map"></div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
@@ -69,6 +73,18 @@
                     scoreValue.textContent = scoreThreshold;
 
                     renderMarkers(allPubs, scoreThreshold);
+                });
+
+                const scoreInput = document.getElementById('score-input');
+                scoreInput.addEventListener('input', function () {
+                    const scoreThreshold = parseInt(scoreInput.value);
+
+                    if (scoreThreshold >= 0 && scoreThreshold <= 25 {
+                        scoreFilter.value = scoreThreshold;
+                        scoreValue.textContent = scoreThreshold;
+                        renderMarkers(allPubs, scoreThreshold);
+
+                    }
                 });
             })
             .catch(error => console.error('Error loading pubs.json:', error));
