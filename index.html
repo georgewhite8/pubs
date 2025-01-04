@@ -24,6 +24,21 @@
         const map = L.map('map').setView([51.5074, -0.1278], 12); // London
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+        function getMarkerColor(Total) {
+            if (Total >= 18) {
+                return '#4CAF50';
+
+            } else if (Total >= 15) {
+                return '#FFEB3B';
+
+            } else if (Total >= 1) {
+                return '#F44336';
+
+            } else {
+                return '#808080';
+            }
+        }
+
         // Add markers dynamically
         fetch('./pubs_pretty.json')
             .then(response => {
@@ -35,7 +50,15 @@
             .then(data => {
                 data = data.filter(pub => pub.latitude && pub.longitude && pub.Pub);
                 data.forEach(pub => {
-                    L.marker([pub.latitude, pub.longitude])
+                    const markerColor = getMarkerColor(pub.Total);
+                    L.circleMarker([pub.latitude, pub.longitude], {
+                        radius: 8,
+                        fillColor: markerColor,
+                        color: markerColor,
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.7
+                    })
                         .addTo(map)
                         .bindPopup(`<b>${pub.Pub}</b><br>Score: ${pub.Total}`);
                 });
