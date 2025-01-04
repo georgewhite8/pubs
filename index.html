@@ -15,6 +15,10 @@
             margin: 10px;
             width: 200px;
         }
+        #score-input {
+            margin: 10px;
+            width: 80px;
+        }
     </style>
 </head>
 <body>
@@ -31,7 +35,7 @@
     <div id="map"></div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Initialize the map
+        // Initialise the map
         const map = L.map('map').setView([51.5074, -0.1278], 12); // London
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -79,7 +83,7 @@
                 scoreInput.addEventListener('input', function () {
                     const scoreThreshold = parseInt(scoreInput.value);
 
-                    if (scoreThreshold >= 0 && scoreThreshold <= 25 {
+                    if (scoreThreshold >= 0 && scoreThreshold <= 25) {
                         scoreFilter.value = scoreThreshold;
                         scoreValue.textContent = scoreThreshold;
                         renderMarkers(allPubs, scoreThreshold);
