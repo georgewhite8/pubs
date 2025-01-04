@@ -115,7 +115,14 @@
                     
                  L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                      .addTo(map)
-                     .bindPopup(`<b>${pub.Pub}</b><br>Score: ${pub.Total}`);
+                     .bindPopup(`<b>${pub.Pub}</b><br>
+                     Total Score: ${pub.Total}<br>
+                     Location: ${pub.Location}<br>
+                     Atmosphere: ${pub.Atmos}<br>
+                     Drinks: ${pub.Drinks}<br>
+                     Value: ${pub.Value}<br>
+                     Facilities: ${pub.Facilities}
+                `);
             });
         }            
     </script>
