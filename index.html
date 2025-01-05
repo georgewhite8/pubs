@@ -70,8 +70,15 @@
             }
         }
 
-        function filterPubsByScore(pubs, scoreThreshold) {
-            return pubs.filter(pub => pub.Total >= scoreThreshold);
+        function filterPubsByScore(pubs, filters) {
+            return pubs.filter(pub =>
+                pub.Total >= filters.total &&
+                pub.Location >= filters.Location &&
+                pub.Atmos >= filters.Atmos &&
+                pub.Drinks >= filters.Drinks &&
+                pub.Value >= filters.Value &&
+                pub.Facilities >= filters.Facilities
+            );
         }
 
         // Add markers dynamically
