@@ -26,9 +26,27 @@
         <h1 class="test-center">London Pub Map</h1>
         <h2 class="test-center"><em>A Semi-Objective Guide</em></h2>
     </div>
-    <label for="score-filter">Filter by Score (Total):</label>
-    <input type="range" id="score-filter" min="0" max="25" value="0" step="1">
-    <span id="score-value">0</span>
+    <div id = "filters">
+        <label for="score-filter">Filter by Total Score:</label>
+        <input type="range" id="score-filter" min="0" max="25" value="0" step="1">
+        <span id="score-value">0</span>
+        <br>
+        <label for="location-filter">Location:</label>
+        <input type="number" id="location-filter" min="0" max="5" value="0" step="1">
+        <br>
+        <label for="atmos-filter">Atmosphere:</label>
+        <input type="number" id="atmos-filter" min="0" max="5" value="0" step="1">
+        <br>
+        <label for="drinks-filter">Drinks:</label>
+        <input type="number" id="drinks-filter" min="0" max="5" value="0" step="1">
+        <br>
+        <label for="value-filter">Value:</label>
+        <input type="number" id="value-filter" min="0" max="5" value="0" step="1">
+        <br>
+        <label for="facilities-filter">Facilities:</label>
+        <input type="number" id="facilities-filter" min="0" max="5" value="0" step="1">
+        <br>
+    </div>
 
     <label for='score-input'>Or type a score:</label>
     <input type="number" id="score-input" min="0" max="25" value="0" step="1">
