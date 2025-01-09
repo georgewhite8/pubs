@@ -26,9 +26,27 @@
         <h1 class="test-center">London Pub Map</h1>
         <h2 class="test-center"><em>A Semi-Objective Guide</em></h2>
     </div>
-    <label for="score-filter">Filter by Score (Total):</label>
-    <input type="range" id="score-filter" min="0" max="25" value="0" step="1">
-    <span id="score-value">0</span>
+    <div id = "filters">
+        <label for="score-filter">Filter by Total Score:</label>
+        <input type="range" id="score-filter" min="0" max="25" value="0" step="1">
+        <span id="score-value">0</span>
+        <br>
+        <label for="location-filter">Location:</label>
+        <input type="number" id="location-filter" min="0" max="5" value="0" step="1">
+        <br>
+        <label for="atmos-filter">Atmosphere:</label>
+        <input type="number" id="atmos-filter" min="0" max="5" value="0" step="1">
+        <br>
+        <label for="drinks-filter">Drinks:</label>
+        <input type="number" id="drinks-filter" min="0" max="5" value="0" step="1">
+        <br>
+        <label for="value-filter">Value:</label>
+        <input type="number" id="value-filter" min="0" max="5" value="0" step="1">
+        <br>
+        <label for="facilities-filter">Facilities:</label>
+        <input type="number" id="facilities-filter" min="0" max="5" value="0" step="1">
+        <br>
+    </div>
 
     <label for='score-input'>Or type a score:</label>
     <input type="number" id="score-input" min="0" max="25" value="0" step="1">
@@ -52,8 +70,62 @@
             }
         }
 
-        function filterPubsByScore(pubs, scoreThreshold) {
-            return pubs.filter(pub => pub.Total >= scoreThreshold);
+        function filterPubsByScore(pubs, filters) {
+            console.log('Filters:', filters);
+            const filtered = pubs.filter(pub =>
+                pub.Total >= filters.Total &&
+                pub.Location >= filters.Location &&
+                pub.Atmos >= filters.Atmos &&
+                pub.Drinks >= filters.Drinks &&
+                pub.Value >= filters.Value &&
+                pub.Facilities >= filters.Facilities
+            );
+            console.log('Filtered Pubs:', filtered);
+            return filtered;
+        }
+
+        function updateMapWithFilters() {
+            const filters = {
+                Total: parseInt(document.getElementById('score-filter').value),
+                Location: parseInt(document.getElementById('location-filter').value),
+                Atmos: parseInt(document.getElementById('atmos-filter').value),
+                Drinks: parseInt(document.getElementById('drinks-filter').value),
+                Value: parseInt(document.getElementById('value-filter').value),
+                Facilities: parseInt(document.getElementById('facilities-filter').value)
+            };
+            console.log('Filters:', filters);
+            renderMarkers(allPubs, filters);
+        }
+
+        function renderMarkers(pubs, filters) {
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            const filteredPubs = filterPubsByScore(pubs, filters);
+            filteredPubs.forEach(pub => {
+                const markerColor = getMarkerColor(pub.Total);
+                const markerIcon = L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div style="background-color: ${markerColor}; width: 25px; height: 25px; border-radius: 50%;"></div>`,
+                    iconSize: [20, 20],  // Size of the marker
+                    iconAnchor: [10, 20],  // Point of the icon that will correspond to marker's location
+                    popupAnchor: [1, -34]  // Position of the popup relative to the icon
+                });
+
+                L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
+                    .addTo(map)
+                    .bindPopup(`<b>${pub.Pub}</b><br>
+                         Total Score: ${pub.Total}<br>
+                         Location: ${pub.Location}<br>
+                         Atmosphere: ${pub.Atmos}<br>
+                         Drinks: ${pub.Drinks}<br>
+                         Value: ${pub.Value}<br>
+                         Facilities: ${pub.Facilities}
+                    `);
+            });
         }
 
         // Add markers dynamically
@@ -66,58 +138,32 @@
                 return response.json();
             })
             .then(data => {
+                console.log('Fetched Data:', data);
                 allPubs = data.filter(pub => pub.latitude && pub.longitude && pub.Pub);
 
-                renderMarkers(allPubs, 0);
+                const initialFilters = {
+                    Total: parseInt(document.getElementById('score-filter').value),
+                    Location: parseInt(document.getElementById('location-filter').value),
+                    Atmos: parseInt(document.getElementById('atmos-filter').value),
+                    Drinks: parseInt(document.getElementById('drinks-filter').value),
+                    Value: parseInt(document.getElementById('value-filter').value),
+                    Facilities: parseInt(document.getElementById('facilities-filter').value)
+                };
 
-                const scoreFilter = document.getElementById('score-filter');
-                const scoreValue = document.getElementById('score-value');
+                renderMarkers(allPubs, initialFilters);
 
-                scoreFilter.addEventListener('input', function () {
-                    const scoreThreshold = parseInt(scoreFilter.value);
-                    scoreValue.textContent = scoreThreshold;
-
-                    renderMarkers(allPubs, scoreThreshold);
+                document.getElementById('score-filter').addEventListener('input', function () {
+                    document.getElementById('score-value').textContent = this.value;
+                    updateMapWithFilters();
                 });
-
-                const scoreInput = document.getElementById('score-input');
-                scoreInput.addEventListener('input', function () {
-                    const scoreThreshold = parseInt(scoreInput.value);
-
-                    if (scoreThreshold >= 0 && scoreThreshold <= 25) {
-                        scoreFilter.value = scoreThreshold;
-                        scoreValue.textContent = scoreThreshold;
-                        renderMarkers(allPubs, scoreThreshold);
-
-                    }
-                });
+                document.getElementById('location-filter').addEventListener('input', updateMapWithFilters);
+                document.getElementById('atmos-filter').addEventListener('input', updateMapWithFilters);
+                document.getElementById('drinks-filter').addEventListener('input', updateMapWithFilters);
+                document.getElementById('value-filter').addEventListener('input', updateMapWithFilters);
+                document.getElementById('facilities-filter').addEventListener('input', updateMapWithFilters);
             })
             .catch(error => console.error('Error loading pubs.json:', error));
-
-        function renderMarkers(pubs, scoreThreshold) {
-            map.eachLayer(layer => {
-                if (layer instanceof L.Marker) {
-                    map.removeLayer(layer);
-                }
-            });
-
-            const filteredPubs = filterPubsByScore(pubs, scoreThreshold);
-
-            filteredPubs.forEach(pub => {
-                 const markerColor = getMarkerColor(pub.Total);
-                 const markerIcon = L.divIcon({
-                     className: 'custom-icon',
-                     html: `<div style="background-color: ${markerColor}; width: 25px; height: 25px; border-radius: 50%;"></div>`,
-                     iconSize: [25, 25],  // Size of the marker
-                     iconAnchor: [12, 25],  // Point of the icon that will correspond to marker's location
-                     popupAnchor: [1, -34]  // Position of the popup relative to the icon
-                 });
-                    
-                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
-                     .addTo(map)
-                     .bindPopup(`<b>${pub.Pub}</b><br>Score: ${pub.Total}`);
-            });
-        }            
+            
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
