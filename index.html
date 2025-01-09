@@ -140,14 +140,17 @@
             .then(data => {
                 console.log('Fetched Data:', data);
                 allPubs = data.filter(pub => pub.latitude && pub.longitude && pub.Pub);
-                renderMarkers(allPubs, {
-                    Total: 0,
-                    Location: 0,
-                    Atmos: 0,
-                    Drinks: 0,
-                    Value: 0,
-                    Facilitiies: 0
-                });
+
+                const initialFilters = {
+                    Total: parseInt(document.getElementById('score-filter').value),
+                    Location: parseInt(document.getElementById('location-filter').value),
+                    Atmos: parseInt(document.getElementById('atmos-filter').value),
+                    Drinks: parseInt(document.getElementById('drinks-filter').value),
+                    Value: parseInt(document.getElementById('value-filter').value),
+                    Facilities: parseInt(document.getElementById('facilities-filter').value)
+                };
+
+                renderMarkers(allPubs, initialFilters);
 
                 document.getElementById('score-filter').addEventListener('input', function () {
                     document.getElementById('score-value').textContent = this.value;
