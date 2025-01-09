@@ -90,7 +90,7 @@
                 Value: parseInt(document.getElementById('value-filter').value),
                 Facilities: parseInt(document.getElementById('facilities-filter').value)
             };
-
+            console.log('Filters:', filters);
             renderMarkers(allPubs, filters);
         }
 
