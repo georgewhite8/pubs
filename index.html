@@ -143,18 +143,12 @@
             navigator.geolocation.getCurrentPosition(
                 position => {
                     const { latitude, longitude } = position.coords;
-                    const liveLocationIcon = L.divIcon({
-                        className: 'custom-live-icon',
-                        html: `<div style=background-color: blue; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>"`,
-                        iconSize: [20, 20],
-                        iconAnchor: [10, 10],
-
-                    });
-
-                    const liveMarker = L.marker([latitude, longitude], { icon: liveLocationIcon })
-                        .addTo(map)
-                        .bindPopup('You are here!')
-                        .openPopup();
+                    const liveLocationIcon = L.circleMarker([latitude, longitude], {
+                        color: '#1E90FF',
+                        fillColor: '#1E90FF',
+                        fillOpacity: 0.5,
+                        radius: 8
+                    }).addTo(map);
 
                     map.setView([latitude, longitude], 14);
 
