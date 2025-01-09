@@ -134,6 +134,12 @@
                 return;
             }
 
+            let userHasMovedMap = false;
+
+            map.on('movestart', () => {
+                userHasMovedMap = true;
+            });
+
             navigator.geolocation.getCurrentPosition(
                 position => {
                     const { latitude, longitude } = position.coords;
@@ -156,7 +162,9 @@
                         updatedPosition => {
                             const { latitude: updatedLat, longitude: updatedLon } = updatedPosition.coords;
                             liveMarker.setLatLng([updatedLat, updatedLon]);
-                            map.setView([updatedLat, updatedLon]);
+                            if (!userHasMovedMap) {
+                                map.setView([updatedLat, updatedLon]);
+                            }
                         },
                         error => console.error('Error watching position:', error)
                     );
