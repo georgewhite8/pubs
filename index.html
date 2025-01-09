@@ -21,24 +21,19 @@
         }
         #filters {
             margin-left: 20px; /* Move filters slightly to the right */
-            max-width: 300px; /* Keep filters compact */
-            text-align: left; /* Align text to the left */
-            display: flex; /* Use flexbox for compact layout */
-            flex-wrap: wrap; /* Allow filters to wrap to the next row if needed */
-            gap: 10px; /* Space between filters */
+            max-width: 300px; /* Limit the width of the filter container */
         }
         #filters label {
-            font-size: 14px; /* Reduce label font size */
-            margin: 0; /* Remove default margin */
+            display: block; /* Ensure each label starts a new line */
+            margin-bottom: 4px; /* Add a small space below each label */
+            font-size: 14px; /* Slightly smaller text for compactness */
         }
         #filters input {
-            width: 80px; /* Reduce input width */
-            margin: 0; /* Remove default margin */
-            padding: 4px; /* Slight padding for better look */
+            margin-bottom: 12px; /* Add some space below each input */
+            width: 80%; /* Limit input width for better alignment */
         }
         #map {
-            height: calc(100vh - 150px); /* Adjust map height */
-            margin-top: 0; /* Avoid unnecessary vertical spacing */
+            height: calc(100vh - 200px); /* Adjust map height */
         }    
     </style>
 </head>
