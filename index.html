@@ -71,7 +71,8 @@
         }
 
         function filterPubsByScore(pubs, filters) {
-            return pubs.filter(pub =>
+            console.log('Filters:', filters);
+            const filtered = pubs.filter(pub =>
                 pub.Total >= filters.total &&
                 pub.Location >= filters.Location &&
                 pub.Atmos >= filters.Atmos &&
@@ -79,6 +80,8 @@
                 pub.Value >= filters.Value &&
                 pub.Facilities >= filters.Facilities
             );
+            console.log('Filtered Pubs:', filtered);
+            return filtered;
         }
 
         function updateMapWithFilters() {
