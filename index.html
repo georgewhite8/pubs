@@ -97,7 +97,7 @@
             renderMarkers(allPubs, filters);
         }
 
-        function renderMarkers(pubs) {
+        function renderMarkers(pubs, filters) {
             map.eachLayer(layer => {
                 if (layer instanceof L.Marker) {
                     map.removeLayer(layer);
@@ -105,7 +105,6 @@
             });
 
             const filteredPubs = filterPubsByScore(pubs, filters);
-
             filteredPubs.forEach(pub => {
                 const markerColor = getMarkerColor(pub.Total);
                 const markerIcon = L.divIcon({
@@ -119,12 +118,12 @@
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
-                Total Score: ${pub.Total}<br>
-                Location: ${pub.Location}<br>
-                Atmosphere: ${pub.Atmos}<br>
-                Drinks: ${pub.Drinks}<br>
-                Value: ${pub.Value}<br>
-                Facilities: ${pub.Facilities}
+                         Total Score: ${pub.Total}<br>
+                         Location: ${pub.Location}<br>
+                         Atmosphere: ${pub.Atmos}<br>
+                         Drinks: ${pub.Drinks}<br>
+                         Value: ${pub.Value}<br>
+                         Facilities: ${pub.Facilities}
                     `);
             });
         }
@@ -139,18 +138,21 @@
                 return response.json();
             })
             .then(data => {
+                console.log('Fetched Data:', data);
                 allPubs = data.filter(pub => pub.latitude && pub.longitude && pub.Pub);
-
                 renderMarkers(allPubs, {
-                    total: 0,
+                    Total: 0,
                     Location: 0,
                     Atmos: 0,
                     Drinks: 0,
                     Value: 0,
-                    Faciltiies: 0
+                    Facilitiies: 0
                 });
 
-                document.getElementById('score-filter').addEventListener('input', updateMapWithFilters);
+                document.getElementById('score-filter').addEventListener('input', function () {
+                    document.getElementById('score-value').textContent = this.value;
+                    updateMapWithFilters();
+                });
                 document.getElementById('location-filter').addEventListener('input', updateMapWithFilters);
                 document.getElementById('atmos-filter').addEventListener('input', updateMapWithFilters);
                 document.getElementById('drinks-filter').addEventListener('input', updateMapWithFilters);
