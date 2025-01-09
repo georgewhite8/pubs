@@ -19,6 +19,19 @@
             margin: 10px;
             width: 80px;
         }
+        #filters {
+            margin: 0 auto; /* Center the filters horizontally */
+            max-width: 400px; /* Limit the width of the filter box */
+            text-align: left; /* Align text within the filters box */
+            padding: 10px; /* Add spacing inside the filters box */
+        }
+        #filters label, #filters input, #filters span {
+            display: block; /* Make each label and input occupy its own line */
+            margin-bottom: 10px; /* Add space between each filter element */
+        }
+        #filters input[type="range"] {
+            width: 100%; /* Ensure sliders span the full width of the container */
+        }    
     </style>
 </head>
 <body>
