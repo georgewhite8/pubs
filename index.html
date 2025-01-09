@@ -73,7 +73,7 @@
         function filterPubsByScore(pubs, filters) {
             console.log('Filters:', filters);
             const filtered = pubs.filter(pub =>
-                pub.Total >= filters.total &&
+                pub.Total >= filters.Total &&
                 pub.Location >= filters.Location &&
                 pub.Atmos >= filters.Atmos &&
                 pub.Drinks >= filters.Drinks &&
