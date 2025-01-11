@@ -19,6 +19,34 @@
             margin: 10px;
             width: 80px;
         }
+        #filters {
+            margin-left: 20px; /* Move filters slightly to the right */
+            max-width: 400px; /* Limit the width of the filter container */
+        }
+        #filters h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        #filters label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px; /* Add a small space below each label */
+            font-size: 14px; /* Slightly smaller text for compactness */
+        }
+        #filters label span {
+            width: 120px;
+            text-align: left;
+        }
+        #filters input {
+            margin-right: 10px;
+            width: calc(100% - 20px);
+            box-sizing: border-box;
+        }
+        #map {
+            height: calc(100vh - 200px); /* Adjust map height */
+        }    
     </style>
 </head>
 <body>
@@ -26,30 +54,34 @@
         <h1 class="test-center">London Pub Map</h1>
         <h2 class="test-center"><em>A Semi-Objective Guide</em></h2>
     </div>
-    <div id = "filters">
-        <label for="score-filter">Filter by Total Score:</label>
-        <input type="range" id="score-filter" min="0" max="25" value="0" step="1">
-        <span id="score-value">0</span>
-        <br>
-        <label for="location-filter">Location:</label>
-        <input type="number" id="location-filter" min="0" max="5" value="0" step="1">
-        <br>
-        <label for="atmos-filter">Atmosphere:</label>
-        <input type="number" id="atmos-filter" min="0" max="5" value="0" step="1">
-        <br>
-        <label for="drinks-filter">Drinks:</label>
-        <input type="number" id="drinks-filter" min="0" max="5" value="0" step="1">
-        <br>
-        <label for="value-filter">Value:</label>
-        <input type="number" id="value-filter" min="0" max="5" value="0" step="1">
-        <br>
-        <label for="facilities-filter">Facilities:</label>
-        <input type="number" id="facilities-filter" min="0" max="5" value="0" step="1">
-        <br>
+    <div id="filters">
+        <h3>Filter for Minimum Scores</h3>
+        <label>
+            <span>Filter by Total Score:</span>
+            <input type="range" id="score-filter" min="0" max="25" value="0" step="1">
+            <span id="score-value">0</span>
+        </label>
+        <label>
+            <span>Location:</span>
+            <input type="number" id="location-filter" min="0" max="5" value="0" step="1">
+        </label>
+        <label>
+            <span>Atmosphere:</span>
+            <input type="number" id="atmos-filter" min="0" max="5" value="0" step="1">
+        </label>
+        <label>
+            <span>Drinks:</span>
+            <input type="number" id="drinks-filter" min="0" max="5" value="0" step="1">
+        </label>
+        <label>
+            <span>Value:</span>
+            <input type="number" id="value-filter" min="0" max="5" value="0" step="1">
+        </label>
+        <label>
+            <span>Facilities:</span>
+            <input type="number" id="facilities-filter" min="0" max="5" value="0" step="1">
+        </label>
     </div>
-
-    <label for='score-input'>Or type a score:</label>
-    <input type="number" id="score-input" min="0" max="25" value="0" step="1">
 
     <div id="map"></div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -59,9 +91,9 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
         function getMarkerColor(Total) {
-            if (Total >= 18) {
+            if (Total >= 17) {
                 return '#4CAF50';
-            } else if (Total >= 15) {
+            } else if (Total >= 14) {
                 return '#FFEB3B';
             } else if (Total >= 1) {
                 return '#F44336';
@@ -118,13 +150,13 @@
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
-                         Total Score: ${pub.Total}<br>
-                         Location: ${pub.Location}<br>
-                         Atmosphere: ${pub.Atmos}<br>
-                         Drinks: ${pub.Drinks}<br>
-                         Value: ${pub.Value}<br>
-                         Facilities: ${pub.Facilities}
-                    `);
+                             Total Score: ${pub.Total}<br>
+                             Location: ${pub.Location}<br>
+                             Atmosphere: ${pub.Atmos}<br>
+                             Drinks: ${pub.Drinks}<br>
+                             Value: ${pub.Value}<br>
+                             Facilities: ${pub.Facilities}
+                        `);
             });
         }
 
@@ -207,7 +239,7 @@
             .catch(error => console.error('Error loading pubs.json:', error));
 
         addLiveLocation();
-            
+
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
