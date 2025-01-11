@@ -23,6 +23,11 @@
             margin-left: 20px; /* Move filters slightly to the right */
             max-width: 400px; /* Limit the width of the filter container */
         }
+        #filters h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: bold;
+        }
         #filters label {
             display: flex;
             justify-content: space-between;
@@ -49,6 +54,7 @@
         <h2 class="test-center"><em>A Semi-Objective Guide</em></h2>
     </div>
     <div id="filters">
+        <h3>Filters for Minimum Scores</h3>
         <label>
             <span>Filter by Total Score:</span>
             <input type="range" id="score-filter" min="0" max="25" value="0" step="1">
@@ -73,10 +79,6 @@
         <label>
             <span>Facilities:</span>
             <input type="number" id="facilities-filter" min="0" max="5" value="0" step="1">
-        </label>
-        <label>
-            <span>Type Total Score:</span>
-            <input type="number" id="score-input" min="0", max="25" value="0" step="1">
         </label>
     </div>
 
