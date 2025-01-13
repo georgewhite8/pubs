@@ -2386,5 +2386,29 @@
         "Value": "2",
         "Facilities": "3",
         "Total": "15"
+    },
+    {
+        "Pub": "Army & Navy",
+        "Area": "Newington Green",
+        "latitude": "51.5516925",
+        "longitude": "-0.07981667387",
+        "Location": "1",
+        "Atmos": "5",
+        "Drinks": "5",
+        "Value": "5",
+        "Facilities": "4",
+        "Total": "20"
+    },
+    {
+        "Pub": "The Alma",
+        "Area": "Newington Green",
+        "latitude": "51.54836656",
+        "longitude": "-0.08778182176",
+        "Location": "2",
+        "Atmos": "5",
+        "Drinks": "5",
+        "Value": "3",
+        "Facilities": "4",
+        "Total": "19"
     }
 ]
