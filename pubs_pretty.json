@@ -1842,10 +1842,10 @@
         "longitude": "-0.07303039474",
         "Location": "3",
         "Atmos": "3",
-        "Drinks": "2",
+        "Drinks": "3",
         "Value": "2",
         "Facilities": "4",
-        "Total": "14"
+        "Total": "15"
     },
     {
         "Pub": "The Morpeth Arms",
@@ -1970,8 +1970,8 @@
     {
         "Pub": "Rose & Crown",
         "Area": "Clapham",
-        "latitude": "51.43403367917509",
-        "longitude": "-0.15453385887333698",
+        "latitude": "51.46369467",
+        "longitude": "-0.141312401",
         "Location": "4",
         "Atmos": "1",
         "Drinks": "3",
@@ -2410,5 +2410,53 @@
         "Value": "3",
         "Facilities": "4",
         "Total": "19"
+    },
+    {
+        "Pub": "King Charles I",
+        "Area": "King's Cross",
+        "latitude": "51.53247732",
+        "longitude": "-0.1196959897",
+        "Location": "3",
+        "Atmos": "5",
+        "Drinks": "3",
+        "Value": "3",
+        "Facilities": "2",
+        "Total": "16"
+    },
+    {
+        "Pub": "The Thornhill Arms",
+        "Area": "King's Cross",
+        "latitude": "51.53435003",
+        "longitude": "-0.1169991938",
+        "Location": "2",
+        "Atmos": "4",
+        "Drinks": "5",
+        "Value": "3",
+        "Facilities": "3",
+        "Total": "17"
+    },
+    {
+        "Pub": "Earl of Essex",
+        "Area": "Angel",
+        "latitude": "51.53384329",
+        "longitude": "-0.09970454039",
+        "Location": "2",
+        "Atmos": "4",
+        "Drinks": "3",
+        "Value": "3",
+        "Facilities": "3",
+        "Total": "15"
+    },
+    {
+        "Pub": "The Coach House",
+        "Area": "Leicester Square",
+        "latitude": "51.50973312",
+        "longitude": "-0.1320074395",
+        "Location": "4",
+        "Atmos": "3",
+        "Drinks": "3",
+        "Value": "3",
+        "Facilities": "2",
+        "Total": "15"
     }
 ]
