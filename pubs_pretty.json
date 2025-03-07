@@ -1970,8 +1970,8 @@
     {
         "Pub": "Rose & Crown",
         "Area": "Clapham",
-        "latitude": "51.46369467",
-        "longitude": "-0.141312401",
+        "latitude": "51.46370895",
+        "longitude": "-0.1413115991",
         "Location": "4",
         "Atmos": "1",
         "Drinks": "3",
@@ -2458,5 +2458,101 @@
         "Value": "3",
         "Facilities": "2",
         "Total": "15"
+    },
+    {
+        "Pub": "The Ship",
+        "Area": "The City",
+        "latitude": "51.51107666",
+        "longitude": "-0.0847560243",
+        "Location": "3",
+        "Atmos": "3",
+        "Drinks": "3",
+        "Value": "3",
+        "Facilities": "3",
+        "Total": "15"
+    },
+    {
+        "Pub": "Steam Passage Tavern",
+        "Area": "Angel",
+        "latitude": "51.53504689",
+        "longitude": "-0.1047014876",
+        "Location": "4",
+        "Atmos": "2",
+        "Drinks": "3",
+        "Value": "5",
+        "Facilities": "3",
+        "Total": "17"
+    },
+    {
+        "Pub": "The Rocket",
+        "Area": "Euston",
+        "latitude": "51.52823298",
+        "longitude": "-0.1287777999",
+        "Location": "4",
+        "Atmos": "",
+        "Drinks": "",
+        "Value": "",
+        "Facilities": "",
+        "Total": ""
+    },
+    {
+        "Pub": "Prince Arthur",
+        "Area": "Euston",
+        "latitude": "51.52993838",
+        "longitude": "-0.1334713528",
+        "Location": "3",
+        "Atmos": "3",
+        "Drinks": "4",
+        "Value": "4",
+        "Facilities": "3",
+        "Total": "17"
+    },
+    {
+        "Pub": "Royal George",
+        "Area": "Euston",
+        "latitude": "51.52833977",
+        "longitude": "-0.1316084523",
+        "Location": "3",
+        "Atmos": "2",
+        "Drinks": "2",
+        "Value": "2",
+        "Facilities": "3",
+        "Total": "12"
+    },
+    {
+        "Pub": "Bradley's Spanish Bar",
+        "Area": "Soho",
+        "latitude": "51.51656496",
+        "longitude": "-0.1327253061",
+        "Location": "4",
+        "Atmos": "4",
+        "Drinks": "4",
+        "Value": "2",
+        "Facilities": "2",
+        "Total": "16"
+    },
+    {
+        "Pub": "The Churchill Arms",
+        "Area": "Kensington",
+        "latitude": "51.50693002",
+        "longitude": "-0.1948067879",
+        "Location": "3",
+        "Atmos": "4",
+        "Drinks": "4",
+        "Value": "3",
+        "Facilities": "3",
+        "Total": "17"
+    },
+    {
+        "Pub": "The Old Queens Head",
+        "Area": "Angel",
+        "latitude": "51.53722871",
+        "longitude": "-0.1004089979",
+        "Location": "3",
+        "Atmos": "4",
+        "Drinks": "3",
+        "Value": "4",
+        "Facilities": "4",
+        "Total": "18"
     }
 ]
