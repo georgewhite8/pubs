@@ -187,7 +187,7 @@
                     navigator.geolocation.watchPosition(
                         updatedPosition => {
                             const { latitude: updatedLat, longitude: updatedLon } = updatedPosition.coords;
-                            liveMarker.setLatLng([updatedLat, updatedLon]);
+                            liveLocationIcon.setLatLng([updatedLat, updatedLon]);
                             if (!userHasMovedMap) {
                                 map.setView([updatedLat, updatedLon]);
                             }
