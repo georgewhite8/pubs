@@ -233,11 +233,11 @@
                         Facilities: fields.Facilities.integerValue
                     };
                 });
+                console.log("Fetched pubs data:", pubsData);
 
                 renderMarkers(allPubs, initialFilters);
             })
             .catch(error => console.error('Error loading pubs from Firebase:', error));
-        console.log("Fetched pubs data:", pubsData);
 
 
         // Event listeners for filters
