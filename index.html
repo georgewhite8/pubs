@@ -215,6 +215,10 @@
         fetch('https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs')
             .then(response => response.json())
             .then(data => {
+                if (!data.documents) {
+                    console.error('No documents found in Firestore.');
+                    return;
+                }
                 allPubs = data.documents.map(doc => {
                     const fields = doc.fields;
                     return {
