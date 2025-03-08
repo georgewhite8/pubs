@@ -219,20 +219,21 @@
                     console.error('No documents found in Firestore.');
                     return;
                 }
-                allPubs = data.documents.map(doc => {
-                    const fields = doc.fields;
-                    return {
-                        Pub: fields.Pub.stringValue,
-                        latitude: fields.latitude.doubleValue,
-                        longitude: fields.longitude.doubleValue,
-                        Total: fields.Total.integerValue,
-                        Location: fields.Location.integerValue,
-                        Atmos: fields.Atmos.integerValue,
-                        Drinks: fields.Drinks.integerValue,
-                        Value: fields.Value.integerValue,
-                        Facilities: fields.Facilities.integerValue
-                    };
-                });
+                async function fetchPubs() {
+                    let pubs = [];
+                    let nextPageToken = null;
+
+                    do {
+                        const url = `https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs?pageSize=100${nextPageToken ? "&pageToken=" + nextPageToken : ""}`;
+                        const response = await fetch(url);
+                        const data = await response.json();
+
+                        pubs = pubs.concat(data.documents || []);
+                        nextPageToken = data.nextPageToken || null;
+                    } while (nextPageToken);
+
+                    return pubs;
+                }
                 console.log("Fetched pubs data:", pubsData);
 
                 renderMarkers(allPubs, initialFilters);
