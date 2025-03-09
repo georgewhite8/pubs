@@ -150,13 +150,13 @@
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
-                                         Total Score: ${pub.Total}<br>
-                                         Location: ${pub.Location}<br>
-                                         Atmosphere: ${pub.Atmos}<br>
-                                         Drinks: ${pub.Drinks}<br>
-                                         Value: ${pub.Value}<br>
-                                         Facilities: ${pub.Facilities}
-                                    `);
+                                             Total Score: ${pub.Total}<br>
+                                             Location: ${pub.Location}<br>
+                                             Atmosphere: ${pub.Atmos}<br>
+                                             Drinks: ${pub.Drinks}<br>
+                                             Value: ${pub.Value}<br>
+                                             Facilities: ${pub.Facilities}
+                                        `);
             });
         }
 
@@ -303,16 +303,24 @@
                             <input type="number" id="longitude" class="form-control" step="any" required>
                         </div>
                         <div class="mb-3">
-                            <label for="beer-score" class="form-label">Beer Score (1-10):</label>
-                            <input type="number" id="beer-score" class="form-control" min="1" max="10" required>
+                            <label for="location-score" class="form-label">Location (1-5):</label>
+                            <input type="number" id="location-score" class="form-control" min="1" max="5" required>
                         </div>
                         <div class="mb-3">
-                            <label for="atmosphere-score" class="form-label">Atmosphere Score (1-10):</label>
-                            <input type="number" id="atmosphere-score" class="form-control" min="1" max="10" required>
+                            <label for="atmosphere-score" class="form-label">Atmosphere (1-5):</label>
+                            <input type="number" id="atmosphere-score" class="form-control" min="1" max="5" required>
                         </div>
                         <div class="mb-3">
-                            <label for="service-score" class="form-label">Service Score (1-10):</label>
-                            <input type="number" id="service-score" class="form-control" min="1" max="10" required>
+                            <label for="drinks-score" class="form-label">Drinks (1-5):</label>
+                            <input type="number" id="drinks-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="value-score" class="form-label">Value (1-5):</label>
+                            <input type="number" id="value-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="facilities-score" class="form-label">Facilities (1-5):</label>
+                            <input type="number" id="facilities-score" class="form-control" min="1" max="5" required>
                         </div>
                         <button type="submit" class="btn btn-success">Submit</button>
                     </form>
@@ -320,5 +328,6 @@
             </div>
         </div>
     </div>
+
 </body>
 </html>
