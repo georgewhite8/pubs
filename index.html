@@ -150,13 +150,13 @@
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
-                                     Total Score: ${pub.Total}<br>
-                                     Location: ${pub.Location}<br>
-                                     Atmosphere: ${pub.Atmos}<br>
-                                     Drinks: ${pub.Drinks}<br>
-                                     Value: ${pub.Value}<br>
-                                     Facilities: ${pub.Facilities}
-                                `);
+                                         Total Score: ${pub.Total}<br>
+                                         Location: ${pub.Location}<br>
+                                         Atmosphere: ${pub.Atmos}<br>
+                                         Drinks: ${pub.Drinks}<br>
+                                         Value: ${pub.Value}<br>
+                                         Facilities: ${pub.Facilities}
+                                    `);
             });
         }
 
@@ -280,6 +280,7 @@
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pubModal">
         Add a Pub
     </button>
+
     <div class="modal fade" id="pubModal" tabindex="-1" aria-labelledby="pubModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -289,15 +290,30 @@
                 </div>
                 <div class="modal-body">
                     <form id="pub-form">
-                        <label for="pub-name">Pub Name:</label>
-                        <input type="text" id="pub-name" required>
-
-                        <label for="latitude">Latitude:</label>
-                        <input type="number" id="latitude" step="any" required>
-
-                        <label for="longitude">Longitude:</label>
-                        <input type="number" id="longitude" step="any" required>
-
+                        <div class="mb-3">
+                            <label for="pub-name" class="form-label">Pub Name:</label>
+                            <input type="text" id="pub-name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="latitude" class="form-label">Latitude:</label>
+                            <input type="number" id="latitude" class="form-control" step="any" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="longitude" class="form-label">Longitude:</label>
+                            <input type="number" id="longitude" class="form-control" step="any" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="beer-score" class="form-label">Beer Score (1-10):</label>
+                            <input type="number" id="beer-score" class="form-control" min="1" max="10" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="atmosphere-score" class="form-label">Atmosphere Score (1-10):</label>
+                            <input type="number" id="atmosphere-score" class="form-control" min="1" max="10" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="service-score" class="form-label">Service Score (1-10):</label>
+                            <input type="number" id="service-score" class="form-control" min="1" max="10" required>
+                        </div>
                         <button type="submit" class="btn btn-success">Submit</button>
                     </form>
                 </div>
