@@ -150,13 +150,13 @@
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
-                                                 Total Score: ${pub.Total}<br>
-                                                 Location: ${pub.Location}<br>
-                                                 Atmosphere: ${pub.Atmos}<br>
-                                                 Drinks: ${pub.Drinks}<br>
-                                                 Value: ${pub.Value}<br>
-                                                 Facilities: ${pub.Facilities}
-                                            `);
+                                                     Total Score: ${pub.Total}<br>
+                                                     Location: ${pub.Location}<br>
+                                                     Atmosphere: ${pub.Atmos}<br>
+                                                     Drinks: ${pub.Drinks}<br>
+                                                     Value: ${pub.Value}<br>
+                                                     Facilities: ${pub.Facilities}
+                                                `);
             });
         }
 
@@ -329,5 +329,26 @@
             </div>
         </div>
     </div>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAR-XOKVv4M6VqObiNtDhNQNsEyIVdxyoc",
+            authDomain: "london-pubs-gw.firebaseapp.com",
+            projectId: "london-pubs-gw",
+            storageBucket: "london-pubs-gw.firebasestorage.app",
+            messagingSenderId: "744963005352",
+            appId: "1:744963005352:web:50e4a4091bed7f35b29b9d"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+    </script>
 </body>
 </html>
