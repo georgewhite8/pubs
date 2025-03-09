@@ -212,32 +212,53 @@
 
         // Add markers dynamically
         let allPubs = [];
-        fetch('https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs')
-            .then(response => response.json())
-            .then(data => {
-                if (!data.documents) {
-                    console.error('No documents found in Firestore.');
-                    return;
-                }
-                allPubs = data.documents.map(doc => {
-                    const fields = doc.fields;
-                    return {
-                        Pub: fields.Pub.stringValue,
-                        latitude: fields.latitude.doubleValue,
-                        longitude: fields.longitude.doubleValue,
-                        Total: fields.Total.integerValue,
-                        Location: fields.Location.integerValue,
-                        Atmos: fields.Atmos.integerValue,
-                        Drinks: fields.Drinks.integerValue,
-                        Value: fields.Value.integerValue,
-                        Facilities: fields.Facilities.integerValue
-                    };
-                });
 
-                renderMarkers(allPubs, initialFilters);
-            })
-            .catch(error => console.error('Error loading pubs from Firebase:', error));
-        console.log("Fetched pubs data:", pubsData);
+        async function fetchAllPubs(nextPageToken = null) {
+            let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs?pageSize=100';
+            if (nextPageToken) {
+                url += `&pageToken=${nextPageToken}`;
+            }
+
+            return fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.documents) {
+                        console.error('No documents found in Firestore.');
+                        return [];
+                    }
+
+                    const pubs = data.documents.map(doc => {
+                        const fields = doc.fields;
+                        return {
+                            Pub: fields.Pub.stringValue,
+                            latitude: fields.latitude?.doubleValue ?? null,  // Handles missing values
+                            longitude: fields.longitude?.doubleValue ?? null,
+                            Total: fields.Total?.integerValue ?? null,
+                            Location: fields.Location?.integerValue ?? null,
+                            Atmos: fields.Atmos?.integerValue ?? null,
+                            Drinks: fields.Drinks?.integerValue ?? null,
+                            Value: fields.Value?.integerValue ?? null,
+                            Facilities: fields.Facilities?.integerValue ?? null
+                        };
+                    });
+
+                    allPubs = allPubs.concat(pubs);
+
+                    if (data.nextPageToken) {
+                        return fetchAllPubs(data.nextPageToken); // Fetch next batch
+                    } else {
+                        return allPubs; // Return when all data is retrieved
+                    }
+                })
+                .catch(error => console.error('Error loading pubs from Firebase:', error));
+        }
+
+        // Call the function and render the markers
+        fetchAllPubs().then(() => {
+            console.log("Fetched pubs data:", allPubs); // Print full dataset
+            renderMarkers(allPubs, initialFilters);
+        });
+
 
 
         // Event listeners for filters
