@@ -150,13 +150,13 @@
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
-                                                         Total Score: ${pub.Total}<br>
-                                                         Location: ${pub.Location}<br>
-                                                         Atmosphere: ${pub.Atmos}<br>
-                                                         Drinks: ${pub.Drinks}<br>
-                                                         Value: ${pub.Value}<br>
-                                                         Facilities: ${pub.Facilities}
-                                                    `);
+                                                             Total Score: ${pub.Total}<br>
+                                                             Location: ${pub.Location}<br>
+                                                             Atmosphere: ${pub.Atmos}<br>
+                                                             Drinks: ${pub.Drinks}<br>
+                                                             Value: ${pub.Value}<br>
+                                                             Facilities: ${pub.Facilities}
+                                                        `);
             });
         }
 
@@ -354,14 +354,16 @@
     <script type="module">
         import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Reference to Firestore collection
-        const pubsCollection = collection(db, "pubs");
-
-        // Form submission handling
         document.getElementById("pub-form").addEventListener("submit", async (event) => {
-            event.preventDefault(); // Prevents page reload
+            event.preventDefault();
 
-            // Get values from the form
+            const db = window.db; // ✅ Ensure Firestore is available
+            if (!db) {
+                console.error("Firestore is not initialized.");
+                alert("Error: Firestore not initialized.");
+                return;
+            }
+
             const pubName = document.getElementById("pub-name").value;
             const latitude = parseFloat(document.getElementById("latitude").value);
             const longitude = parseFloat(document.getElementById("longitude").value);
@@ -372,8 +374,7 @@
             const facilitiesScore = parseInt(document.getElementById("facilities-score").value);
 
             try {
-                // Add new pub entry to Firestore
-                await addDoc(pubsCollection, {
+                await addDoc(collection(db, "pubs"), {
                     name: pubName,
                     latitude: latitude,
                     longitude: longitude,
@@ -384,11 +385,11 @@
                         value: valueScore,
                         facilities: facilitiesScore
                     },
-                    timestamp: new Date() // Optional: Adds a timestamp
+                    timestamp: new Date()
                 });
 
                 alert("Pub added successfully!");
-                document.getElementById("pub-form").reset(); // Clears form
+                document.getElementById("pub-form").reset();
             } catch (error) {
                 console.error("Error adding document: ", error);
                 alert("Error adding pub. Please try again.");
