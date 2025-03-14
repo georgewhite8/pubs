@@ -390,7 +390,10 @@
             };
 
             try {
-                await addDoc(collection(db, "pubs"), newPub);
+                import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+                const pubId = `${pubName}-${latitude}-${longitude}`.replace(/\s+/g, "-").toLowerCase(); // Generate custom ID
+                await setDoc(doc(db, "pubs", pubId), newPub);
 
                 alert("Pub added successfully!");
                 document.getElementById("pub-form").reset();
