@@ -150,13 +150,13 @@
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
-                                                                     Total Score: ${pub.Total}<br>
-                                                                     Location: ${pub.Location}<br>
-                                                                     Atmosphere: ${pub.Atmos}<br>
-                                                                     Drinks: ${pub.Drinks}<br>
-                                                                     Value: ${pub.Value}<br>
-                                                                     Facilities: ${pub.Facilities}
-                                                                `);
+                                                                         Total Score: ${pub.Total}<br>
+                                                                         Location: ${pub.Location}<br>
+                                                                         Atmosphere: ${pub.Atmos}<br>
+                                                                         Drinks: ${pub.Drinks}<br>
+                                                                         Value: ${pub.Value}<br>
+                                                                         Facilities: ${pub.Facilities}
+                                                                    `);
             });
         }
 
@@ -354,12 +354,12 @@
         window.db = db;
     </script>
     <script type="module">
-        import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { collection, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         document.getElementById("pub-form").addEventListener("submit", async (event) => {
             event.preventDefault();
 
-            const db = window.db; // ✅ Ensure Firestore is available
+            const db = window.db; // Ensure Firestore is available
             if (!db) {
                 console.error("Firestore is not initialized.");
                 alert("Error: Firestore not initialized.");
@@ -389,12 +389,11 @@
                 timestamp: new Date()
             };
 
+            // Generate custom ID (ensure dots and negative signs are handled if needed)
+            const pubId = `${pubName}_${latitude}_${longitude}`.replace(/\s+/g, "_").toLowerCase();
+
             try {
-                import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-                const pubId = `${pubName}_${latitude}_${longitude}`.replace(/\s+/g, "_").toLowerCase(); // Generate custom ID
                 await setDoc(doc(db, "pubs", pubId), newPub);
-
                 alert("Pub added successfully!");
                 document.getElementById("pub-form").reset();
 
@@ -406,6 +405,7 @@
             }
         });
     </script>
+
 
 </body>
 </html>
