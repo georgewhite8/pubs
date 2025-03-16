@@ -375,18 +375,19 @@
             const valueScore = parseInt(document.getElementById("value-score").value);
             const facilitiesScore = parseInt(document.getElementById("facilities-score").value);
 
+            const totalScore = locationScore + atmosphereScore + drinksScore + valueScore + facilitiesScore;
+
             const newPub = {
-                name: pubName,
-                latitude: latitude,
-                longitude: longitude,
-                scores: {
-                    location: locationScore,
-                    atmosphere: atmosphereScore,
-                    drinks: drinksScore,
-                    value: valueScore,
-                    facilities: facilitiesScore
-                },
-                timestamp: new Date()
+                Pub: { stringValue: pubName },
+                latitude: { doubleValue: latitude },
+                longitude: { doubleValue: longitude },
+                Total: { integerValue: totalScore },
+                Location: { integerValue: locationScore },
+                Atmos: { integerValue: atmosphereScore },
+                Drinks: { integerValue: drinksScore },
+                Value: { integerValue: valueScore },
+                Facilities: { integerValue: facilitiesScore },
+                timestamp: { timestampValue: new Date().toISOString() }
             };
 
             // Generate custom ID (ensure dots and negative signs are handled if needed)
