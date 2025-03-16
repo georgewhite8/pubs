@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pub Map</title>
+    <title>London Pub Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -20,8 +20,8 @@
             width: 80px;
         }
         #filters {
-            margin-left: 20px; /* Move filters slightly to the right */
-            max-width: 400px; /* Limit the width of the filter container */
+            margin-left: 20px;
+            max-width: 400px;
         }
         #filters h3 {
             margin-bottom: 15px;
@@ -32,8 +32,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px; /* Add a small space below each label */
-            font-size: 14px; /* Slightly smaller text for compactness */
+            margin-bottom: 10px; 
+            font-size: 14px; 
         }
         #filters label span {
             width: 120px;
@@ -45,8 +45,22 @@
             box-sizing: border-box;
         }
         #map {
-            height: calc(100vh - 200px); /* Adjust map height */
-        }    
+            height: calc(100vh - 200px); 
+        }
+        #auth-container {
+            margin: 10px 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        #user-display {
+            margin-left: 10px;
+            font-style: italic;
+        }
+
+        .user-marker {
+            border: 2px solid black !important;
+        }
     </style>
 </head>
 <body>
