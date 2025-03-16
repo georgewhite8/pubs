@@ -68,6 +68,13 @@
         <h1 class="text-center">London Pub Map</h1>
         <h2 class="text-center"><em>A Semi-Objective Guide</em></h2>
     </div>
+
+    <div id="auth-container">
+        <button id="login-button" class="btn btn-outline-primary btn-sm">Login to Add Your Own Pubs</button>
+        <button id="logout-button" class="btn btn-outline-secondary btn-sm ms-2" style="display: none;">Logout</button>
+        <span id="user-display"></span>
+    </div>
+
     <div id="filters">
         <h3>Filter for Minimum Scores</h3>
         <label>
@@ -164,13 +171,13 @@
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
-                                                                         Total Score: ${pub.Total}<br>
-                                                                         Location: ${pub.Location}<br>
-                                                                         Atmosphere: ${pub.Atmos}<br>
-                                                                         Drinks: ${pub.Drinks}<br>
-                                                                         Value: ${pub.Value}<br>
-                                                                         Facilities: ${pub.Facilities}
-                                                                    `);
+                                                                             Total Score: ${pub.Total}<br>
+                                                                             Location: ${pub.Location}<br>
+                                                                             Atmosphere: ${pub.Atmos}<br>
+                                                                             Drinks: ${pub.Drinks}<br>
+                                                                             Value: ${pub.Value}<br>
+                                                                             Facilities: ${pub.Facilities}
+                                                                        `);
             });
         }
 
