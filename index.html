@@ -105,11 +105,21 @@
     </div>
 
     <div id="map"></div>
+
+    <!-- Add login button -->
+    <div class="container my-4">
+        <button id="login-button" class="btn btn-primary">Login to Add Your Own Pubs</button>
+        <span id="login-status" class="ms-2"></span>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // Initialise the map
         const map = L.map('map').setView([51.5074, -0.1278], 12); // London
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // Track current user
+        let currentUser = null;
 
         function getMarkerColor(Total) {
             if (Total >= 17) {
@@ -121,6 +131,24 @@
             } else {
                 return '#808080';
             }
+        }
+
+        function getMarkerStyle(Total, isUserEntry) {
+            const baseColor = getMarkerColor(Total);
+
+            if (isUserEntry) {
+                return {
+                    fillColor: baseColor,
+                    border: '2px solid black',
+                    borderRadius: '50%'
+                };
+            }
+
+            return {
+                fillColor: baseColor,
+                border: 'none',
+                borderRadius: '50%'
+            };
         }
 
         function filterPubsByScore(pubs, filters) {
@@ -159,25 +187,36 @@
 
             const filteredPubs = filterPubsByScore(pubs, filters);
             filteredPubs.forEach(pub => {
-                const markerColor = getMarkerColor(pub.Total);
+                const markerStyle = getMarkerStyle(pub.Total, pub.isUserEntry);
+
                 const markerIcon = L.divIcon({
                     className: 'custom-icon',
-                    html: `<div style="background-color: ${markerColor}; width: 25px; height: 25px; border-radius: 50%;"></div>`,
-                    iconSize: [20, 20],  // Size of the marker
-                    iconAnchor: [10, 20],  // Point of the icon that will correspond to marker's location
-                    popupAnchor: [1, -34]  // Position of the popup relative to the icon
+                    html: `<div style="
+                            background-color: ${markerStyle.fillColor};
+                            width: 25px;
+                            height: 25px;
+                            border: ${markerStyle.border};
+                            border-radius: ${markerStyle.borderRadius};
+                        "></div>`,
+                    iconSize: [25, 25],
+                    iconAnchor: [12, 25],
+                    popupAnchor: [1, -34]
                 });
+
+                const popupContent = `
+                        <b>${pub.Pub}</b><br>
+                        ${pub.isUserEntry ? '<i>Your entry</i><br>' : ''}
+                        Total Score: ${pub.Total}<br>
+                        Location: ${pub.Location}<br>
+                        Atmosphere: ${pub.Atmos}<br>
+                        Drinks: ${pub.Drinks}<br>
+                        Value: ${pub.Value}<br>
+                        Facilities: ${pub.Facilities}
+                    `;
 
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
-                    .bindPopup(`<b>${pub.Pub}</b><br>
-                                                                             Total Score: ${pub.Total}<br>
-                                                                             Location: ${pub.Location}<br>
-                                                                             Atmosphere: ${pub.Atmos}<br>
-                                                                             Drinks: ${pub.Drinks}<br>
-                                                                             Value: ${pub.Value}<br>
-                                                                             Facilities: ${pub.Facilities}
-                                                                        `);
+                    .bindPopup(popupContent);
             });
         }
 
@@ -222,6 +261,7 @@
                 }
             );
         }
+
         const initialFilters = {
             Total: 0,
             Location: 0,
@@ -250,18 +290,27 @@
 
                     const pubs = data.documents.map(doc => {
                         const fields = doc.fields;
-                        return {
-                            Pub: fields.Pub.stringValue,
-                            latitude: fields.latitude?.doubleValue ?? null,  // Handles missing values
-                            longitude: fields.longitude?.doubleValue ?? null,
-                            Total: fields.Total?.integerValue ?? null,
-                            Location: fields.Location?.integerValue ?? null,
-                            Atmos: fields.Atmos?.integerValue ?? null,
-                            Drinks: fields.Drinks?.integerValue ?? null,
-                            Value: fields.Value?.integerValue ?? null,
-                            Facilities: fields.Facilities?.integerValue ?? null
-                        };
-                    });
+                        const isUserEntry = fields.isUserEntry?.booleanValue ?? false;
+                        const userId = fields.userId?.stringValue ?? null;
+
+                        // Show all core pubs and only user entries that match the current user
+                        if (!isUserEntry || (currentUser && userId === currentUser.uid)) {
+                            return {
+                                Pub: fields.Pub?.stringValue ?? '',
+                                latitude: fields.latitude?.doubleValue ?? null,
+                                longitude: fields.longitude?.doubleValue ?? null,
+                                Total: parseInt(fields.Total?.integerValue ?? 0),
+                                Location: parseInt(fields.Location?.integerValue ?? 0),
+                                Atmos: parseInt(fields.Atmos?.integerValue ?? 0),
+                                Drinks: parseInt(fields.Drinks?.integerValue ?? 0),
+                                Value: parseInt(fields.Value?.integerValue ?? 0),
+                                Facilities: parseInt(fields.Facilities?.integerValue ?? 0),
+                                isUserEntry: isUserEntry,
+                                userId: userId
+                            };
+                        }
+                        return null;
+                    }).filter(pub => pub !== null);
 
                     allPubs = allPubs.concat(pubs);
 
@@ -280,8 +329,6 @@
             renderMarkers(allPubs, initialFilters);
         });
 
-
-
         // Event listeners for filters
         document.getElementById('score-filter').addEventListener('input', function () {
             document.getElementById('score-value').textContent = this.value;
@@ -294,11 +341,12 @@
         document.getElementById('facilities-filter').addEventListener('input', updateMapWithFilters);
 
         addLiveLocation();
-
-
     </script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pubModal">
+
+    <!-- Add Pub Button - Only show when logged in -->
+    <button id="add-pub-btn" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pubModal" style="display: none;">
         Add a Pub
     </button>
 
@@ -353,6 +401,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAR-XOKVv4M6VqObiNtDhNQNsEyIVdxyoc",
@@ -363,24 +412,91 @@
             appId: "1:744963005352:web:50e4a4091bed7f35b29b9d"
         };
 
-        // ✅ Initialize Firebase
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         console.log("✅ Firebase initialized:", app);
 
-        // ✅ Initialize Firestore
+        // Initialize Firestore
         const db = getFirestore(app);
         console.log("✅ Firestore initialized:", db);
 
-        // Expose db globally
+        // Initialize Firebase Auth
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // Make db and auth available globally
         window.db = db;
+        window.auth = auth;
+        window.currentUser = null;
+
+        // Monitor auth state changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                window.currentUser = user;
+                console.log("User signed in:", user.displayName);
+
+                // Update login button text
+                const loginButton = document.getElementById("login-button");
+                if (loginButton) {
+                    loginButton.textContent = "Logged in as " + user.displayName;
+                }
+
+                // Refresh the map to include user's entries
+                fetchAllPubs().then(() => {
+                    renderMarkers(allPubs, initialFilters);
+                });
+            } else {
+                // User is signed out
+                window.currentUser = null;
+
+                // Update login button text
+                const loginButton = document.getElementById("login-button");
+                if (loginButton) {
+                    loginButton.textContent = "Login to Add Your Own Pubs";
+                }
+            }
+        });
     </script>
+
     <script type="module">
         import { collection, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
+        // Add login functionality
+        const loginButton = document.createElement("button");
+        loginButton.id = "login-button";
+        loginButton.className = "btn btn-primary m-2";
+        loginButton.textContent = "Login to Add Your Own Pubs";
+        document.body.insertBefore(loginButton, document.querySelector("#pubModal"));
+
+        loginButton.addEventListener("click", () => {
+            if (!window.currentUser) {
+                signInWithPopup(window.auth, new GoogleAuthProvider())
+                    .then((result) => {
+                        const user = result.user;
+                        console.log("Logged in user:", user.displayName);
+                    }).catch((error) => {
+                        console.error("Error during authentication:", error);
+                    });
+            } else {
+                // Already logged in - show dialog to add pub
+                const modal = new bootstrap.Modal(document.getElementById('pubModal'));
+                modal.show();
+            }
+        });
+
+        // Handle pub form submission
         document.getElementById("pub-form").addEventListener("submit", async (event) => {
             event.preventDefault();
 
-            const db = window.db; // Ensure Firestore is available
+            // Check if user is logged in
+            if (!window.currentUser) {
+                alert("Please log in with Google to add your own pubs.");
+                return;
+            }
+
+            const db = window.db;
             if (!db) {
                 console.error("Firestore is not initialized.");
                 alert("Error: Firestore not initialized.");
@@ -397,9 +513,11 @@
             const facilitiesScore = parseInt(document.getElementById("facilities-score").value);
             const totalScore = locationScore + atmosphereScore + drinksScore + valueScore + facilitiesScore;
 
+            // Generate ID in the format pub_latitude_longitude
+            const pubId = `${pubName}_${latitude}_${longitude}`.replace(/\s+/g, "_").toLowerCase();
+
             try {
-                const pubRef = doc(collection(db, "pubs"));
-                await setDoc(pubRef, {
+                const pubData = {
                     Pub: pubName,
                     latitude: latitude,
                     longitude: longitude,
@@ -409,12 +527,16 @@
                     Drinks: drinksScore,
                     Value: valueScore,
                     Facilities: facilitiesScore,
-                    timestamp: new Date()
-                });
+                    timestamp: new Date(),
+                    isUserEntry: true,
+                    userId: window.currentUser.uid,
+                    userDisplayName: window.currentUser.displayName
+                };
+
+                await setDoc(doc(db, "pubs", pubId), pubData);
 
                 alert("Pub added successfully!");
 
-                // Add the pub to the local array in the same format as expected by renderMarkers
                 const newPub = {
                     Pub: pubName,
                     latitude: latitude,
@@ -424,7 +546,10 @@
                     Atmos: atmosphereScore,
                     Drinks: drinksScore,
                     Value: valueScore,
-                    Facilities: facilitiesScore
+                    Facilities: facilitiesScore,
+                    isUserEntry: true,
+                    userId: window.currentUser.uid,
+                    userDisplayName: window.currentUser.displayName
                 };
 
                 allPubs.push(newPub);
@@ -432,11 +557,111 @@
 
                 document.getElementById("pub-form").reset();
 
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('pubModal'));
+                modal.hide();
+
             } catch (error) {
                 console.error("Error adding document: ", error);
                 alert("Error adding pub. Please try again.");
             }
         });
+
+        // Modify the fetchAllPubs function to handle user entries
+        window.fetchAllPubsOriginal = window.fetchAllPubs; // Save the original function
+
+        window.fetchAllPubs = async function (nextPageToken = null) {
+            let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs?pageSize=100';
+            if (nextPageToken) {
+                url += `&pageToken=${nextPageToken}`;
+            }
+
+            return fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.documents) {
+                        console.error('No documents found in Firestore.');
+                        return [];
+                    }
+
+                    const pubs = data.documents.map(doc => {
+                        const fields = doc.fields;
+                        const isUserEntry = fields.isUserEntry?.booleanValue ?? false;
+                        const userId = fields.userId?.stringValue ?? null;
+
+                        // Include if it's a core pub OR if it belongs to the current user
+                        if (!isUserEntry || (window.currentUser && userId === window.currentUser.uid)) {
+                            return {
+                                Pub: fields.Pub?.stringValue ?? "Unknown Pub",
+                                latitude: fields.latitude?.doubleValue ?? null,
+                                longitude: fields.longitude?.doubleValue ?? null,
+                                Total: fields.Total?.integerValue ?? null,
+                                Location: fields.Location?.integerValue ?? null,
+                                Atmos: fields.Atmos?.integerValue ?? null,
+                                Drinks: fields.Drinks?.integerValue ?? null,
+                                Value: fields.Value?.integerValue ?? null,
+                                Facilities: fields.Facilities?.integerValue ?? null,
+                                isUserEntry: isUserEntry,
+                                userId: userId
+                            };
+                        }
+                        return null;
+                    }).filter(pub => pub !== null);
+
+                    window.allPubs = pubs; // Replace instead of concat to avoid duplicates
+
+                    if (data.nextPageToken) {
+                        return fetchAllPubs(data.nextPageToken);
+                    } else {
+                        return window.allPubs;
+                    }
+                })
+                .catch(error => console.error('Error loading pubs from Firebase:', error));
+        };
+
+        // Update the marker creation function to show different styling for user entries
+        window.renderMarkersOriginal = window.renderMarkers; // Save original function
+
+        window.renderMarkers = function (pubs, filters) {
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            const filteredPubs = filterPubsByScore(pubs, filters);
+            filteredPubs.forEach(pub => {
+                // Determine marker color based on score
+                let markerColor = getMarkerColor(pub.Total);
+
+                // Create marker with special style for user entries
+                const markerIcon = L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div style="
+                        background-color: ${markerColor};
+                        width: 25px;
+                        height: 25px;
+                        border-radius: 50%;
+                        ${pub.isUserEntry ? 'border: 3px solid #3366ff; box-shadow: 0 0 5px #3366ff;' : ''}
+                    "></div>`,
+                    iconSize: [25, 25],
+                    iconAnchor: [12, 25],
+                    popupAnchor: [1, -34]
+                });
+
+                L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
+                    .addTo(map)
+                    .bindPopup(`<b>${pub.Pub}</b><br>
+                                ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
+                                Total Score: ${pub.Total}<br>
+                                Location: ${pub.Location}<br>
+                                Atmosphere: ${pub.Atmos}<br>
+                                Drinks: ${pub.Drinks}<br>
+                                Value: ${pub.Value}<br>
+                                Facilities: ${pub.Facilities}
+                            `);
+            });
+        };
     </script>
 
 
