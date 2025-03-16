@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pub Map</title>
+    <title>London Pub Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -20,8 +20,8 @@
             width: 80px;
         }
         #filters {
-            margin-left: 20px; /* Move filters slightly to the right */
-            max-width: 400px; /* Limit the width of the filter container */
+            margin-left: 20px;
+            max-width: 400px;
         }
         #filters h3 {
             margin-bottom: 15px;
@@ -32,8 +32,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px; /* Add a small space below each label */
-            font-size: 14px; /* Slightly smaller text for compactness */
+            margin-bottom: 10px; 
+            font-size: 14px; 
         }
         #filters label span {
             width: 120px;
@@ -45,8 +45,22 @@
             box-sizing: border-box;
         }
         #map {
-            height: calc(100vh - 200px); /* Adjust map height */
-        }    
+            height: calc(100vh - 200px); 
+        }
+        #auth-container {
+            margin: 10px 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        #user-display {
+            margin-left: 10px;
+            font-style: italic;
+        }
+
+        .user-marker {
+            border: 2px solid black !important;
+        }
     </style>
 </head>
 <body>
@@ -54,6 +68,13 @@
         <h1 class="text-center">London Pub Map</h1>
         <h2 class="text-center"><em>A Semi-Objective Guide</em></h2>
     </div>
+
+    <div id="auth-container">
+        <button id="login-button" class="btn btn-outline-primary btn-sm">Login to Add Your Own Pubs</button>
+        <button id="logout-button" class="btn btn-outline-secondary btn-sm ms-2" style="display: none;">Logout</button>
+        <span id="user-display"></span>
+    </div>
+
     <div id="filters">
         <h3>Filter for Minimum Scores</h3>
         <label>
@@ -150,13 +171,13 @@
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
-                             Total Score: ${pub.Total}<br>
-                             Location: ${pub.Location}<br>
-                             Atmosphere: ${pub.Atmos}<br>
-                             Drinks: ${pub.Drinks}<br>
-                             Value: ${pub.Value}<br>
-                             Facilities: ${pub.Facilities}
-                        `);
+                                                                             Total Score: ${pub.Total}<br>
+                                                                             Location: ${pub.Location}<br>
+                                                                             Atmosphere: ${pub.Atmos}<br>
+                                                                             Drinks: ${pub.Drinks}<br>
+                                                                             Value: ${pub.Value}<br>
+                                                                             Facilities: ${pub.Facilities}
+                                                                        `);
             });
         }
 
@@ -277,5 +298,147 @@
 
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pubModal">
+        Add a Pub
+    </button>
+
+    <div class="modal fade" id="pubModal" tabindex="-1" aria-labelledby="pubModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pubModalLabel">Add a New Pub</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pub-form">
+                        <div class="mb-3">
+                            <label for="pub-name" class="form-label">Pub Name:</label>
+                            <input type="text" id="pub-name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="latitude" class="form-label">Latitude:</label>
+                            <input type="number" id="latitude" class="form-control" step="any" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="longitude" class="form-label">Longitude:</label>
+                            <input type="number" id="longitude" class="form-control" step="any" required>
+                            <small class="form-text text-muted"><em>You can find coordinates by dropping a pin on Google Maps.</em></small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location-score" class="form-label">Location (1-5):</label>
+                            <input type="number" id="location-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="atmosphere-score" class="form-label">Atmosphere (1-5):</label>
+                            <input type="number" id="atmosphere-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="drinks-score" class="form-label">Drinks (1-5):</label>
+                            <input type="number" id="drinks-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="value-score" class="form-label">Value (1-5):</label>
+                            <input type="number" id="value-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="facilities-score" class="form-label">Facilities (1-5):</label>
+                            <input type="number" id="facilities-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAR-XOKVv4M6VqObiNtDhNQNsEyIVdxyoc",
+            authDomain: "london-pubs-gw.firebaseapp.com",
+            projectId: "london-pubs-gw",
+            storageBucket: "london-pubs-gw.firebasestorage.app",
+            messagingSenderId: "744963005352",
+            appId: "1:744963005352:web:50e4a4091bed7f35b29b9d"
+        };
+
+        // ✅ Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        console.log("✅ Firebase initialized:", app);
+
+        // ✅ Initialize Firestore
+        const db = getFirestore(app);
+        console.log("✅ Firestore initialized:", db);
+
+        // Expose db globally
+        window.db = db;
+    </script>
+    <script type="module">
+        import { collection, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        document.getElementById("pub-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const db = window.db; // Ensure Firestore is available
+            if (!db) {
+                console.error("Firestore is not initialized.");
+                alert("Error: Firestore not initialized.");
+                return;
+            }
+
+            const pubName = document.getElementById("pub-name").value;
+            const latitude = parseFloat(document.getElementById("latitude").value);
+            const longitude = parseFloat(document.getElementById("longitude").value);
+            const locationScore = parseInt(document.getElementById("location-score").value);
+            const atmosphereScore = parseInt(document.getElementById("atmosphere-score").value);
+            const drinksScore = parseInt(document.getElementById("drinks-score").value);
+            const valueScore = parseInt(document.getElementById("value-score").value);
+            const facilitiesScore = parseInt(document.getElementById("facilities-score").value);
+            const totalScore = locationScore + atmosphereScore + drinksScore + valueScore + facilitiesScore;
+
+            try {
+                const pubRef = doc(collection(db, "pubs"));
+                await setDoc(pubRef, {
+                    Pub: pubName,
+                    latitude: latitude,
+                    longitude: longitude,
+                    Total: totalScore,
+                    Location: locationScore,
+                    Atmos: atmosphereScore,
+                    Drinks: drinksScore,
+                    Value: valueScore,
+                    Facilities: facilitiesScore,
+                    timestamp: new Date()
+                });
+
+                alert("Pub added successfully!");
+
+                // Add the pub to the local array in the same format as expected by renderMarkers
+                const newPub = {
+                    Pub: pubName,
+                    latitude: latitude,
+                    longitude: longitude,
+                    Total: totalScore,
+                    Location: locationScore,
+                    Atmos: atmosphereScore,
+                    Drinks: drinksScore,
+                    Value: valueScore,
+                    Facilities: facilitiesScore
+                };
+
+                allPubs.push(newPub);
+                renderMarkers(allPubs, initialFilters);
+
+                document.getElementById("pub-form").reset();
+
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert("Error adding pub. Please try again.");
+            }
+        });
+    </script>
+
+
 </body>
 </html>
