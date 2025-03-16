@@ -374,32 +374,43 @@
             const drinksScore = parseInt(document.getElementById("drinks-score").value);
             const valueScore = parseInt(document.getElementById("value-score").value);
             const facilitiesScore = parseInt(document.getElementById("facilities-score").value);
-
             const totalScore = locationScore + atmosphereScore + drinksScore + valueScore + facilitiesScore;
 
-            const newPub = {
-                Pub: { stringValue: pubName },
-                latitude: { doubleValue: latitude },
-                longitude: { doubleValue: longitude },
-                Total: { integerValue: totalScore },
-                Location: { integerValue: locationScore },
-                Atmos: { integerValue: atmosphereScore },
-                Drinks: { integerValue: drinksScore },
-                Value: { integerValue: valueScore },
-                Facilities: { integerValue: facilitiesScore },
-                timestamp: { timestampValue: new Date().toISOString() }
-            };
-
-            // Generate custom ID (ensure dots and negative signs are handled if needed)
-            const pubId = `${pubName}_${latitude}_${longitude}`.replace(/\s+/g, "_").toLowerCase();
-
             try {
-                await setDoc(doc(db, "pubs", pubId), newPub);
+                const pubRef = doc(collection(db, "pubs"));
+                await setDoc(pubRef, {
+                    Pub: pubName,
+                    latitude: latitude,
+                    longitude: longitude,
+                    Total: totalScore,
+                    Location: locationScore,
+                    Atmos: atmosphereScore,
+                    Drinks: drinksScore,
+                    Value: valueScore,
+                    Facilities: facilitiesScore,
+                    timestamp: new Date()
+                });
+
                 alert("Pub added successfully!");
-                document.getElementById("pub-form").reset();
+
+                // Add the pub to the local array in the same format as expected by renderMarkers
+                const newPub = {
+                    Pub: pubName,
+                    latitude: latitude,
+                    longitude: longitude,
+                    Total: totalScore,
+                    Location: locationScore,
+                    Atmos: atmosphereScore,
+                    Drinks: drinksScore,
+                    Value: valueScore,
+                    Facilities: facilitiesScore
+                };
 
                 allPubs.push(newPub);
                 renderMarkers(allPubs, initialFilters);
+
+                document.getElementById("pub-form").reset();
+
             } catch (error) {
                 console.error("Error adding document: ", error);
                 alert("Error adding pub. Please try again.");
