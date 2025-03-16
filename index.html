@@ -430,16 +430,37 @@
         window.currentUser = null;
 
         // Monitor auth state changes
+        // Modify your onAuthStateChanged function to properly update all buttons
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 // User is signed in
                 window.currentUser = user;
                 console.log("User signed in:", user.displayName);
 
-                // Update login button text
-                const loginButton = document.getElementById("login-button");
-                if (loginButton) {
-                    loginButton.textContent = "Logged in as " + user.displayName;
+                // Update all login buttons
+                const loginButtons = document.querySelectorAll("#login-button");
+                loginButtons.forEach(button => {
+                    button.style.display = 'none'; // Hide login button
+                });
+
+                // Show add pub button when logged in
+                const addPubBtn = document.getElementById("add-pub-btn");
+                if (addPubBtn) {
+                    addPubBtn.style.display = 'block';
+                    addPubBtn.textContent = 'Add Your Pub';
+                }
+
+                // Update user display
+                const userDisplay = document.getElementById("user-display");
+                if (userDisplay) {
+                    userDisplay.textContent = `Logged in as ${user.displayName}`;
+                    userDisplay.style.display = 'inline';
+                }
+
+                // Show logout button
+                const logoutButton = document.getElementById("logout-button");
+                if (logoutButton) {
+                    logoutButton.style.display = 'inline-block';
                 }
 
                 // Refresh the map to include user's entries
@@ -450,10 +471,30 @@
                 // User is signed out
                 window.currentUser = null;
 
-                // Update login button text
-                const loginButton = document.getElementById("login-button");
-                if (loginButton) {
-                    loginButton.textContent = "Login to Add Your Own Pubs";
+                // Update login buttons
+                const loginButtons = document.querySelectorAll("#login-button");
+                loginButtons.forEach(button => {
+                    button.style.display = 'inline-block';
+                    button.textContent = "Login to Add Your Own Pubs";
+                });
+
+                // Hide add pub button when logged out
+                const addPubBtn = document.getElementById("add-pub-btn");
+                if (addPubBtn) {
+                    addPubBtn.style.display = 'none';
+                }
+
+                // Clear user display
+                const userDisplay = document.getElementById("user-display");
+                if (userDisplay) {
+                    userDisplay.textContent = '';
+                    userDisplay.style.display = 'none';
+                }
+
+                // Hide logout button
+                const logoutButton = document.getElementById("logout-button");
+                if (logoutButton) {
+                    logoutButton.style.display = 'none';
                 }
             }
         });
