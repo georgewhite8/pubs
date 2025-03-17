@@ -152,8 +152,13 @@
         }
 
         function filterPubsByScore(pubs, filters) {
+            console.log('Total pubs before filtering:', pubs.length);
             console.log('Filters:', filters);
-            const filtered = pubs.filter(pub =>
+
+            // Make sure we're operating on a copy of the array, not a reference
+            const allPubsToFilter = [...pubs];
+
+            const filtered = allPubsToFilter.filter(pub =>
                 pub.Total >= filters.Total &&
                 pub.Location >= filters.Location &&
                 pub.Atmos >= filters.Atmos &&
@@ -161,6 +166,7 @@
                 pub.Value >= filters.Value &&
                 pub.Facilities >= filters.Facilities
             );
+
             console.log('Filtered Pubs count:', filtered.length);
             return filtered;
         }
