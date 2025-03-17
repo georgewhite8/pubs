@@ -628,54 +628,55 @@
                 url += `&pageToken=${nextPageToken}`;
             }
 
-            return fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.documents) {
-                        console.error('No documents found in Firestore.');
-                        return window.allPubs;
-                    }
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
 
-                    const pubs = data.documents.map(doc => {
-                        const fields = doc.fields;
-                        const isUserEntry = fields.isUserEntry?.booleanValue ?? false;
-                        const userId = fields.userId?.stringValue ?? null;
-
-                        // Include if it's a core pub OR if it belongs to the current user
-                        if (!isUserEntry || (window.currentUser && userId === window.currentUser.uid)) {
-                            return {
-                                Pub: fields.Pub?.stringValue ?? "Unknown Pub",
-                                latitude: fields.latitude?.doubleValue ?? null,
-                                longitude: fields.longitude?.doubleValue ?? null,
-                                Total: parseInt(fields.Total?.integerValue ?? 0),
-                                Location: parseInt(fields.Location?.integerValue ?? 0),
-                                Atmos: parseInt(fields.Atmos?.integerValue ?? 0),
-                                Drinks: parseInt(fields.Drinks?.integerValue ?? 0),
-                                Value: parseInt(fields.Value?.integerValue ?? 0),
-                                Facilities: parseInt(fields.Facilities?.integerValue ?? 0),
-                                isUserEntry: isUserEntry,
-                                userId: userId
-                            };
-                        }
-                        return null;
-                    }).filter(pub => pub !== null);
-
-                    // Concatenate the new pubs to the existing array instead of replacing
-                    window.allPubs = window.allPubs.concat(pubs);
-                    console.log(`Loaded ${pubs.length} pubs, total now: ${window.allPubs.length}`);
-
-                    if (data.nextPageToken) { 
-                        // Recursively fetch the next page
-                        return fetchAllPubs(data.nextPageToken);
-                    } else {
-                        // Return the complete array when all pages are fetched
-                        return window.allPubs;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading pubs from Firebase:', error);
+                if (!data.documents) {
+                    console.error('No documents found in Firestore.');
                     return window.allPubs;
-                });
+                }
+
+                const pubs = data.documents.map(doc => {
+                    const fields = doc.fields;
+                    const isUserEntry = fields.isUserEntry?.booleanValue ?? false;
+                    const userId = fields.userId?.stringValue ?? null;
+
+                    // Include if it's a core pub OR if it belongs to the current user
+                    if (!isUserEntry || (window.currentUser && userId === window.currentUser.uid)) {
+                        return {
+                            Pub: fields.Pub?.stringValue ?? "Unknown Pub",
+                            latitude: fields.latitude?.doubleValue ?? null,
+                            longitude: fields.longitude?.doubleValue ?? null,
+                            Total: parseInt(fields.Total?.integerValue ?? 0),
+                            Location: parseInt(fields.Location?.integerValue ?? 0),
+                            Atmos: parseInt(fields.Atmos?.integerValue ?? 0),
+                            Drinks: parseInt(fields.Drinks?.integerValue ?? 0),
+                            Value: parseInt(fields.Value?.integerValue ?? 0),
+                            Facilities: parseInt(fields.Facilities?.integerValue ?? 0),
+                            isUserEntry: isUserEntry,
+                            userId: userId
+                        };
+                    }
+                    return null;
+                }).filter(pub => pub !== null);
+
+                // Important: Concatenate rather than replace
+                window.allPubs = window.allPubs.concat(pubs);
+                console.log(`Loaded ${pubs.length} pubs, total now: ${window.allPubs.length}`);
+
+                // Handle pagination
+                if (data.nextPageToken) {
+                    // Recursively fetch the next page
+                    return await fetchAllPubs(data.nextPageToken);
+                } else {
+                    console.log(`Finished loading all ${window.allPubs.length} pubs`);
+                    return window.allPubs;
+                }
+            } catch (error) {
+                console.error('Error loading pubs from Firebase:', error);
+                return window.allPubs;
+            }
         };
 
         // Update the marker creation function to show different styling for user entries
