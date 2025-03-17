@@ -180,8 +180,12 @@
                 Value: parseInt(document.getElementById('value-filter').value),
                 Facilities: parseInt(document.getElementById('facilities-filter').value)
             };
+
+            console.log('Updating map with filters, total pubs:', window.allPubs.length);
             console.log('Filters:', filters);
-            renderMarkers(allPubs, filters);
+
+            // Make sure we're passing the complete array
+            renderMarkers(window.allPubs, filters);
         }
 
         function renderMarkers(pubs, filters) {
