@@ -654,7 +654,7 @@
                     if (data.nextPageToken) {
                         return fetchAllPubs(data.nextPageToken);
                     } else {
-                        return window.allPubs;
+                        return window.allPubs; 
                     }
                 })
                 .catch(error => console.error('Error loading pubs from Firebase:', error));
