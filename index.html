@@ -202,27 +202,27 @@
                 const markerIcon = L.divIcon({
                     className: 'custom-icon',
                     html: `<div style="
-                            background-color: ${markerStyle.fillColor};
-                            width: 25px;
-                            height: 25px;
-                            border: ${markerStyle.border};
-                            border-radius: ${markerStyle.borderRadius};
-                        "></div>`,
+                                background-color: ${markerStyle.fillColor};
+                                width: 25px;
+                                height: 25px;
+                                border: ${markerStyle.border};
+                                border-radius: ${markerStyle.borderRadius};
+                            "></div>`,
                     iconSize: [25, 25],
                     iconAnchor: [12, 25],
                     popupAnchor: [1, -34]
                 });
 
                 const popupContent = `
-                        <b>${pub.Pub}</b><br>
-                        ${pub.isUserEntry ? '<i>Your entry</i><br>' : ''}
-                        Total Score: ${pub.Total}<br>
-                        Location: ${pub.Location}<br>
-                        Atmosphere: ${pub.Atmos}<br>
-                        Drinks: ${pub.Drinks}<br>
-                        Value: ${pub.Value}<br>
-                        Facilities: ${pub.Facilities}
-                    `;
+                            <b>${pub.Pub}</b><br>
+                            ${pub.isUserEntry ? '<i>Your entry</i><br>' : ''}
+                            Total Score: ${pub.Total}<br>
+                            Location: ${pub.Location}<br>
+                            Atmosphere: ${pub.Atmos}<br>
+                            Drinks: ${pub.Drinks}<br>
+                            Value: ${pub.Value}<br>
+                            Facilities: ${pub.Facilities}
+                        `;
 
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
@@ -714,12 +714,12 @@
                 const markerIcon = L.divIcon({
                     className: 'custom-icon',
                     html: `<div style="
-                background-color: ${markerColor};
-                width: 25px;
-                height: 25px;
-                border-radius: 50%;
-                ${pub.isUserEntry ? 'border: 3px solid #3366ff; box-shadow: 0 0 5px #3366ff;' : ''}
-            "></div>`,
+                    background-color: ${markerColor};
+                    width: 25px;
+                    height: 25px;
+                    border-radius: 50%;
+                    ${pub.isUserEntry ? 'border: 3px solid #3366ff; box-shadow: 0 0 5px #3366ff;' : ''}
+                "></div>`,
                     iconSize: [25, 25],
                     iconAnchor: [12, 25],
                     popupAnchor: [1, -34]
@@ -728,18 +728,194 @@
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
-                        ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
-                        Total Score: ${pub.Total}<br>
-                        Location: ${pub.Location}<br>
-                        Atmosphere: ${pub.Atmos}<br>
-                        Drinks: ${pub.Drinks}<br>
-                        Value: ${pub.Value}<br>
-                        Facilities: ${pub.Facilities}
-                    `);
+                            ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
+                            Total Score: ${pub.Total}<br>
+                            Location: ${pub.Location}<br>
+                            Atmosphere: ${pub.Atmos}<br>
+                            Drinks: ${pub.Drinks}<br>
+                            Value: ${pub.Value}<br>
+                            Facilities: ${pub.Facilities}
+                        `);
             });
         };
     </script>
 
+    <script>
+        // Fix for pagination and filtering issues
+        document.addEventListener('DOMContentLoaded', function () {
+            // Create a global variable to store all pubs
+            window.completeAllPubs = [];
 
+            // Override the existing fetchAllPubs function
+            window.fetchAllPubsOriginal = window.fetchAllPubs;
+            window.fetchAllPubs = async function (nextPageToken = null) {
+                // Reset the array when starting a fresh fetch
+                if (!nextPageToken) {
+                    window.completeAllPubs = [];
+                }
+
+                let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs?pageSize=100';
+                if (nextPageToken) {
+                    url += `&pageToken=${nextPageToken}`;
+                }
+
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (!data.documents) {
+                        console.error('No documents found in Firestore.');
+                        return window.completeAllPubs;
+                    }
+
+                    const pubs = data.documents.map(doc => {
+                        const fields = doc.fields;
+                        const isUserEntry = fields.isUserEntry?.booleanValue ?? false;
+                        const userId = fields.userId?.stringValue ?? null;
+
+                        // Include if it's a core pub OR if it belongs to the current user
+                        if (!isUserEntry || (window.currentUser && userId === window.currentUser.uid)) {
+                            return {
+                                Pub: fields.Pub?.stringValue ?? "Unknown Pub",
+                                latitude: fields.latitude?.doubleValue ?? null,
+                                longitude: fields.longitude?.doubleValue ?? null,
+                                Total: parseInt(fields.Total?.integerValue ?? 0),
+                                Location: parseInt(fields.Location?.integerValue ?? 0),
+                                Atmos: parseInt(fields.Atmos?.integerValue ?? 0),
+                                Drinks: parseInt(fields.Drinks?.integerValue ?? 0),
+                                Value: parseInt(fields.Value?.integerValue ?? 0),
+                                Facilities: parseInt(fields.Facilities?.integerValue ?? 0),
+                                isUserEntry: isUserEntry,
+                                userId: userId
+                            };
+                        }
+                        return null;
+                    }).filter(pub => pub !== null);
+
+                    // Concatenate to our global array
+                    window.completeAllPubs = window.completeAllPubs.concat(pubs);
+                    console.log(`Loaded ${pubs.length} pubs, total now: ${window.completeAllPubs.length}`);
+
+                    // Make the standard allPubs variable match our complete set
+                    window.allPubs = window.completeAllPubs;
+
+                    if (data.nextPageToken) {
+                        // Continue fetching
+                        return await window.fetchAllPubs(data.nextPageToken);
+                    } else {
+                        console.log(`COMPLETED: Total pubs loaded: ${window.completeAllPubs.length}`);
+                        return window.completeAllPubs;
+                    }
+                } catch (error) {
+                    console.error('Error loading pubs from Firebase:', error);
+                    return window.completeAllPubs;
+                }
+            };
+
+            // Override the filter function
+            window.filterPubsByScoreOriginal = window.filterPubsByScore || function () { };
+            window.filterPubsByScore = function (pubs, filters) {
+                // Ensure we're using the complete set of pubs
+                const pubsToFilter = window.completeAllPubs.length > 0 ? window.completeAllPubs : pubs;
+                console.log(`Filtering ${pubsToFilter.length} pubs with filters:`, filters);
+
+                const filtered = pubsToFilter.filter(pub =>
+                    pub.Total >= filters.Total &&
+                    pub.Location >= filters.Location &&
+                    pub.Atmos >= filters.Atmos &&
+                    pub.Drinks >= filters.Drinks &&
+                    pub.Value >= filters.Value &&
+                    pub.Facilities >= filters.Facilities
+                );
+
+                console.log(`Filtering result: ${filtered.length} pubs passed the filters`);
+                return filtered;
+            };
+
+            // Override the update function
+            window.updateMapWithFiltersOriginal = window.updateMapWithFilters;
+            window.updateMapWithFilters = function () {
+                const filters = {
+                    Total: parseInt(document.getElementById('score-filter').value),
+                    Location: parseInt(document.getElementById('location-filter').value),
+                    Atmos: parseInt(document.getElementById('atmos-filter').value),
+                    Drinks: parseInt(document.getElementById('drinks-filter').value),
+                    Value: parseInt(document.getElementById('value-filter').value),
+                    Facilities: parseInt(document.getElementById('facilities-filter').value)
+                };
+
+                console.log(`Updating map with filters using ${window.completeAllPubs.length} pubs`);
+                // Use our complete set of pubs
+                window.renderMarkers(window.completeAllPubs, filters);
+            };
+
+            // Override the render function
+            window.renderMarkersOriginal = window.renderMarkers;
+            window.renderMarkers = function (pubs, filters) {
+                // Clear existing markers
+                map.eachLayer(layer => {
+                    if (layer instanceof L.Marker) {
+                        map.removeLayer(layer);
+                    }
+                });
+
+                // Use our complete set if available
+                const pubsToRender = window.completeAllPubs.length > 0 ? window.completeAllPubs : pubs;
+                console.log(`Rendering from ${pubsToRender.length} total pubs`);
+
+                const filteredPubs = window.filterPubsByScore(pubsToRender, filters);
+                console.log(`Adding ${filteredPubs.length} markers to the map`);
+
+                filteredPubs.forEach(pub => {
+                    if (pub.latitude === null || pub.longitude === null) {
+                        console.warn(`Skipping pub with invalid coordinates: ${pub.Pub}`);
+                        return;
+                    }
+
+                    let markerColor = getMarkerColor(pub.Total);
+
+                    const markerIcon = L.divIcon({
+                        className: 'custom-icon',
+                        html: `<div style="
+                        background-color: ${markerColor};
+                        width: 25px;
+                        height: 25px;
+                        border-radius: 50%;
+                        ${pub.isUserEntry ? 'border: 3px solid #3366ff; box-shadow: 0 0 5px #3366ff;' : ''}
+                    "></div>`,
+                        iconSize: [25, 25],
+                        iconAnchor: [12, 25],
+                        popupAnchor: [1, -34]
+                    });
+
+                    L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
+                        .addTo(map)
+                        .bindPopup(`<b>${pub.Pub}</b><br>
+                                ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
+                                Total Score: ${pub.Total}<br>
+                                Location: ${pub.Location}<br>
+                                Atmosphere: ${pub.Atmos}<br>
+                                Drinks: ${pub.Drinks}<br>
+                                Value: ${pub.Value}<br>
+                                Facilities: ${pub.Facilities}
+                            `);
+                });
+            };
+
+            // Refetch all pubs after our overrides are in place
+            console.log("Reinitializing pub data with fixed functions...");
+            window.fetchAllPubs().then(() => {
+                console.log(`Initialization complete. Loaded ${window.completeAllPubs.length} pubs.`);
+                window.renderMarkers(window.completeAllPubs, {
+                    Total: 0,
+                    Location: 0,
+                    Atmos: 0,
+                    Drinks: 0,
+                    Value: 0,
+                    Facilities: 0
+                });
+            });
+        });
+    </script>
 </body>
 </html>
