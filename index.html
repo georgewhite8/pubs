@@ -161,7 +161,7 @@
                 pub.Value >= filters.Value &&
                 pub.Facilities >= filters.Facilities
             );
-            console.log('Filtered Pubs:', filtered);
+            console.log('Filtered Pubs count:', filtered.length);
             return filtered;
         }
 
@@ -675,6 +675,7 @@
         // Update the marker creation function to show different styling for user entries
         window.renderMarkersOriginal = window.renderMarkers; // Save original function
 
+        // Update the renderMarkers function to handle larger sets
         window.renderMarkers = function (pubs, filters) {
             map.eachLayer(layer => {
                 if (layer instanceof L.Marker) {
@@ -683,6 +684,9 @@
             });
 
             const filteredPubs = filterPubsByScore(pubs, filters);
+            console.log(`Rendering ${filteredPubs.length} pubs on the map`);
+
+            // Process all pubs without any array slicing or limits
             filteredPubs.forEach(pub => {
                 // Determine marker color based on score
                 let markerColor = getMarkerColor(pub.Total);
@@ -691,12 +695,12 @@
                 const markerIcon = L.divIcon({
                     className: 'custom-icon',
                     html: `<div style="
-                        background-color: ${markerColor};
-                        width: 25px;
-                        height: 25px;
-                        border-radius: 50%;
-                        ${pub.isUserEntry ? 'border: 3px solid #3366ff; box-shadow: 0 0 5px #3366ff;' : ''}
-                    "></div>`,
+                background-color: ${markerColor};
+                width: 25px;
+                height: 25px;
+                border-radius: 50%;
+                ${pub.isUserEntry ? 'border: 3px solid #3366ff; box-shadow: 0 0 5px #3366ff;' : ''}
+            "></div>`,
                     iconSize: [25, 25],
                     iconAnchor: [12, 25],
                     popupAnchor: [1, -34]
@@ -705,14 +709,14 @@
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
-                                ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
-                                Total Score: ${pub.Total}<br>
-                                Location: ${pub.Location}<br>
-                                Atmosphere: ${pub.Atmos}<br>
-                                Drinks: ${pub.Drinks}<br>
-                                Value: ${pub.Value}<br>
-                                Facilities: ${pub.Facilities}
-                            `);
+                        ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
+                        Total Score: ${pub.Total}<br>
+                        Location: ${pub.Location}<br>
+                        Atmosphere: ${pub.Atmos}<br>
+                        Drinks: ${pub.Drinks}<br>
+                        Value: ${pub.Value}<br>
+                        Facilities: ${pub.Facilities}
+                    `);
             });
         };
     </script>
