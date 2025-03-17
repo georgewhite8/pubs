@@ -612,6 +612,11 @@
         window.fetchAllPubsOriginal = window.fetchAllPubs; // Save the original function
 
         window.fetchAllPubs = async function (nextPageToken = null) {
+            // Reset allPubs array if we're starting fresh (no nextPageToken)
+            if (!nextPageToken) {
+                window.allPubs = [];
+            }
+
             let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs?pageSize=100';
             if (nextPageToken) {
                 url += `&pageToken=${nextPageToken}`;
@@ -622,7 +627,7 @@
                 .then(data => {
                     if (!data.documents) {
                         console.error('No documents found in Firestore.');
-                        return [];
+                        return window.allPubs;
                     }
 
                     const pubs = data.documents.map(doc => {
@@ -636,12 +641,12 @@
                                 Pub: fields.Pub?.stringValue ?? "Unknown Pub",
                                 latitude: fields.latitude?.doubleValue ?? null,
                                 longitude: fields.longitude?.doubleValue ?? null,
-                                Total: fields.Total?.integerValue ?? null,
-                                Location: fields.Location?.integerValue ?? null,
-                                Atmos: fields.Atmos?.integerValue ?? null,
-                                Drinks: fields.Drinks?.integerValue ?? null,
-                                Value: fields.Value?.integerValue ?? null,
-                                Facilities: fields.Facilities?.integerValue ?? null,
+                                Total: parseInt(fields.Total?.integerValue ?? 0),
+                                Location: parseInt(fields.Location?.integerValue ?? 0),
+                                Atmos: parseInt(fields.Atmos?.integerValue ?? 0),
+                                Drinks: parseInt(fields.Drinks?.integerValue ?? 0),
+                                Value: parseInt(fields.Value?.integerValue ?? 0),
+                                Facilities: parseInt(fields.Facilities?.integerValue ?? 0),
                                 isUserEntry: isUserEntry,
                                 userId: userId
                             };
@@ -649,15 +654,22 @@
                         return null;
                     }).filter(pub => pub !== null);
 
-                    window.allPubs = pubs; // Replace instead of concat to avoid duplicates
+                    // Concatenate the new pubs to the existing array instead of replacing
+                    window.allPubs = window.allPubs.concat(pubs);
+                    console.log(`Loaded ${pubs.length} pubs, total now: ${window.allPubs.length}`);
 
-                    if (data.nextPageToken) {
+                    if (data.nextPageToken) { 
+                        // Recursively fetch the next page
                         return fetchAllPubs(data.nextPageToken);
                     } else {
-                        return window.allPubs; 
+                        // Return the complete array when all pages are fetched
+                        return window.allPubs;
                     }
                 })
-                .catch(error => console.error('Error loading pubs from Firebase:', error));
+                .catch(error => {
+                    console.error('Error loading pubs from Firebase:', error);
+                    return window.allPubs;
+                });
         };
 
         // Update the marker creation function to show different styling for user entries
