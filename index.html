@@ -688,17 +688,25 @@
 
         // Update the renderMarkers function to handle larger sets
         window.renderMarkers = function (pubs, filters) {
+            // Clear existing markers
             map.eachLayer(layer => {
                 if (layer instanceof L.Marker) {
                     map.removeLayer(layer);
                 }
             });
 
+            console.log(`Before filtering: ${pubs.length} pubs`);
             const filteredPubs = filterPubsByScore(pubs, filters);
-            console.log(`Rendering ${filteredPubs.length} pubs on the map`);
+            console.log(`After filtering: ${filteredPubs.length} pubs to render`);
 
-            // Process all pubs without any array slicing or limits
+            // Add markers for each filtered pub
             filteredPubs.forEach(pub => {
+                // Skip pubs with invalid coordinates
+                if (pub.latitude === null || pub.longitude === null) {
+                    console.warn(`Skipping pub with invalid coordinates: ${pub.Pub}`);
+                    return;
+                }
+
                 // Determine marker color based on score
                 let markerColor = getMarkerColor(pub.Total);
 
