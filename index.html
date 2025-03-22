@@ -460,6 +460,12 @@
                     addPubBtn.textContent = 'Add Your Pub';
                 }
 
+                // Show the visibility note
+                const pubVisibilityNote = document.getElementById("pub-visibility-note");
+                if (pubVisibilityNote) {
+                    pubVisibilityNote.style.display = 'inline';
+                }
+
                 // Update user display
                 const userDisplay = document.getElementById("user-display");
                 if (userDisplay) {
@@ -492,6 +498,12 @@
                 const addPubBtn = document.getElementById("add-pub-btn");
                 if (addPubBtn) {
                     addPubBtn.style.display = 'none';
+                }
+
+                // Hide the visibility note
+                const pubVisibilityNote = document.getElementById("pub-visibility-note");
+                if (pubVisibilityNote) {
+                    pubVisibilityNote.style.display = 'none';
                 }
 
                 // Clear user display
