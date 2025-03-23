@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pub Map</title>
+    <title>London Pub Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -20,8 +20,8 @@
             width: 80px;
         }
         #filters {
-            margin-left: 20px; /* Move filters slightly to the right */
-            max-width: 400px; /* Limit the width of the filter container */
+            margin-left: 20px;
+            max-width: 400px;
         }
         #filters h3 {
             margin-bottom: 15px;
@@ -32,8 +32,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px; /* Add a small space below each label */
-            font-size: 14px; /* Slightly smaller text for compactness */
+            margin-bottom: 10px; 
+            font-size: 14px; 
         }
         #filters label span {
             width: 120px;
@@ -45,8 +45,22 @@
             box-sizing: border-box;
         }
         #map {
-            height: calc(100vh - 200px); /* Adjust map height */
-        }    
+            height: calc(100vh - 200px); 
+        }
+        #auth-container {
+            margin: 10px 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        #user-display {
+            margin-left: 10px;
+            font-style: italic;
+        }
+
+        .user-marker {
+            border: 2px solid black !important;
+        }
     </style>
 </head>
 <body>
@@ -54,6 +68,13 @@
         <h1 class="text-center">London Pub Map</h1>
         <h2 class="text-center"><em>A Semi-Objective Guide</em></h2>
     </div>
+
+    <div id="auth-container">
+        <button id="login-button" class="btn btn-outline-primary btn-sm">Login to Add Your Own Pubs</button>
+        <button id="logout-button" class="btn btn-outline-secondary btn-sm ms-2" style="display: none;">Logout</button>
+        <span id="user-display"></span>
+    </div>
+
     <div id="filters">
         <h3>Filter for Minimum Scores</h3>
         <label>
@@ -84,27 +105,54 @@
     </div>
 
     <div id="map"></div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // Initialise the map
         const map = L.map('map').setView([51.5074, -0.1278], 12); // London
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+        // Track current user
+        let currentUser = null;
+
         function getMarkerColor(Total) {
             if (Total >= 17) {
-                return '#4CAF50';
+                return '#1A9850';
             } else if (Total >= 14) {
-                return '#FFEB3B';
+                return '#E69F00';
             } else if (Total >= 1) {
-                return '#F44336';
+                return '#D73027';
             } else {
                 return '#808080';
             }
         }
 
+        function getMarkerStyle(Total, isUserEntry) {
+            const baseColor = getMarkerColor(Total);
+
+            if (isUserEntry) {
+                return {
+                    fillColor: baseColor,
+                    border: '2px solid black',
+                    borderRadius: '50%'
+                };
+            }
+
+            return {
+                fillColor: baseColor,
+                border: 'none',
+                borderRadius: '50%'
+            };
+        }
+
         function filterPubsByScore(pubs, filters) {
+            console.log('Total pubs before filtering:', pubs.length);
             console.log('Filters:', filters);
-            const filtered = pubs.filter(pub =>
+
+            // Make sure we're operating on a copy of the array, not a reference
+            const allPubsToFilter = [...pubs];
+
+            const filtered = allPubsToFilter.filter(pub =>
                 pub.Total >= filters.Total &&
                 pub.Location >= filters.Location &&
                 pub.Atmos >= filters.Atmos &&
@@ -112,7 +160,8 @@
                 pub.Value >= filters.Value &&
                 pub.Facilities >= filters.Facilities
             );
-            console.log('Filtered Pubs:', filtered);
+
+            console.log('Filtered Pubs count:', filtered.length);
             return filtered;
         }
 
@@ -125,8 +174,12 @@
                 Value: parseInt(document.getElementById('value-filter').value),
                 Facilities: parseInt(document.getElementById('facilities-filter').value)
             };
+
+            console.log('Updating map with filters, total pubs:', window.allPubs.length);
             console.log('Filters:', filters);
-            renderMarkers(allPubs, filters);
+
+            // Make sure we're passing the complete array
+            renderMarkers(window.allPubs, filters);
         }
 
         function renderMarkers(pubs, filters) {
@@ -138,25 +191,36 @@
 
             const filteredPubs = filterPubsByScore(pubs, filters);
             filteredPubs.forEach(pub => {
-                const markerColor = getMarkerColor(pub.Total);
+                const markerStyle = getMarkerStyle(pub.Total, pub.isUserEntry);
+
                 const markerIcon = L.divIcon({
                     className: 'custom-icon',
-                    html: `<div style="background-color: ${markerColor}; width: 25px; height: 25px; border-radius: 50%;"></div>`,
-                    iconSize: [20, 20],  // Size of the marker
-                    iconAnchor: [10, 20],  // Point of the icon that will correspond to marker's location
-                    popupAnchor: [1, -34]  // Position of the popup relative to the icon
+                    html: `<div style="
+                                    background-color: ${markerStyle.fillColor};
+                                    width: 25px;
+                                    height: 25px;
+                                    border: ${markerStyle.border};
+                                    border-radius: ${markerStyle.borderRadius};
+                                "></div>`,
+                    iconSize: [25, 25],
+                    iconAnchor: [12, 25],
+                    popupAnchor: [1, -34]
                 });
+
+                const popupContent = `
+                                <b>${pub.Pub}</b><br>
+                                ${pub.isUserEntry ? '<i>Your entry</i><br>' : ''}
+                                Total Score: ${pub.Total}<br>
+                                Location: ${pub.Location}<br>
+                                Atmosphere: ${pub.Atmos}<br>
+                                Drinks: ${pub.Drinks}<br>
+                                Value: ${pub.Value}<br>
+                                Facilities: ${pub.Facilities}
+                            `;
 
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
-                    .bindPopup(`<b>${pub.Pub}</b><br>
-                             Total Score: ${pub.Total}<br>
-                             Location: ${pub.Location}<br>
-                             Atmosphere: ${pub.Atmos}<br>
-                             Drinks: ${pub.Drinks}<br>
-                             Value: ${pub.Value}<br>
-                             Facilities: ${pub.Facilities}
-                        `);
+                    .bindPopup(popupContent);
             });
         }
 
@@ -201,6 +265,7 @@
                 }
             );
         }
+
         const initialFilters = {
             Total: 0,
             Location: 0,
@@ -229,18 +294,27 @@
 
                     const pubs = data.documents.map(doc => {
                         const fields = doc.fields;
-                        return {
-                            Pub: fields.Pub.stringValue,
-                            latitude: fields.latitude?.doubleValue ?? null,  // Handles missing values
-                            longitude: fields.longitude?.doubleValue ?? null,
-                            Total: fields.Total?.integerValue ?? null,
-                            Location: fields.Location?.integerValue ?? null,
-                            Atmos: fields.Atmos?.integerValue ?? null,
-                            Drinks: fields.Drinks?.integerValue ?? null,
-                            Value: fields.Value?.integerValue ?? null,
-                            Facilities: fields.Facilities?.integerValue ?? null
-                        };
-                    });
+                        const isUserEntry = fields.isUserEntry?.booleanValue ?? false;
+                        const userId = fields.userId?.stringValue ?? null;
+
+                        // Show all core pubs and only user entries that match the current user
+                        if (!isUserEntry || (currentUser && userId === currentUser.uid)) {
+                            return {
+                                Pub: fields.Pub?.stringValue ?? '',
+                                latitude: fields.latitude?.doubleValue ?? null,
+                                longitude: fields.longitude?.doubleValue ?? null,
+                                Total: parseInt(fields.Total?.integerValue ?? 0),
+                                Location: parseInt(fields.Location?.integerValue ?? 0),
+                                Atmos: parseInt(fields.Atmos?.integerValue ?? 0),
+                                Drinks: parseInt(fields.Drinks?.integerValue ?? 0),
+                                Value: parseInt(fields.Value?.integerValue ?? 0),
+                                Facilities: parseInt(fields.Facilities?.integerValue ?? 0),
+                                isUserEntry: isUserEntry,
+                                userId: userId
+                            };
+                        }
+                        return null;
+                    }).filter(pub => pub !== null);
 
                     allPubs = allPubs.concat(pubs);
 
@@ -259,8 +333,6 @@
             renderMarkers(allPubs, initialFilters);
         });
 
-
-
         // Event listeners for filters
         document.getElementById('score-filter').addEventListener('input', function () {
             document.getElementById('score-value').textContent = this.value;
@@ -273,9 +345,586 @@
         document.getElementById('facilities-filter').addEventListener('input', updateMapWithFilters);
 
         addLiveLocation();
-
-
     </script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Add Pub Button - Only show when logged in -->
+    <!-- Add Pub Button - Only show when logged in -->
+    <div class="mt-3 mb-3">
+        <button id="add-pub-btn" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pubModal" style="display: none;">
+            Add a Pub
+        </button>
+        <span id="pub-visibility-note" class="ms-2 text-muted fst-italic" style="display: none;">
+            Note: Pubs you add will only be visible to you and will appear with a blue outline
+        </span>
+    </div>
+
+    <div class="modal fade" id="pubModal" tabindex="-1" aria-labelledby="pubModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pubModalLabel">Add a New Pub</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pub-form">
+                        <div class="mb-3">
+                            <label for="pub-name" class="form-label">Pub Name:</label>
+                            <input type="text" id="pub-name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="latitude" class="form-label">Latitude:</label>
+                            <input type="number" id="latitude" class="form-control" step="any" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="longitude" class="form-label">Longitude:</label>
+                            <input type="number" id="longitude" class="form-control" step="any" required>
+                            <small class="form-text text-muted"><em>You can find coordinates by dropping a pin on a maps app.</em></small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location-score" class="form-label">Location (1-5):</label>
+                            <input type="number" id="location-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="atmosphere-score" class="form-label">Atmosphere (1-5):</label>
+                            <input type="number" id="atmosphere-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="drinks-score" class="form-label">Drinks (1-5):</label>
+                            <input type="number" id="drinks-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="value-score" class="form-label">Value (1-5):</label>
+                            <input type="number" id="value-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="facilities-score" class="form-label">Facilities (1-5):</label>
+                            <input type="number" id="facilities-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAR-XOKVv4M6VqObiNtDhNQNsEyIVdxyoc",
+            authDomain: "london-pubs-gw.firebaseapp.com",
+            projectId: "london-pubs-gw",
+            storageBucket: "london-pubs-gw.firebasestorage.app",
+            messagingSenderId: "744963005352",
+            appId: "1:744963005352:web:50e4a4091bed7f35b29b9d"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        console.log("✅ Firebase initialized:", app);
+
+        // Initialize Firestore
+        const db = getFirestore(app);
+        console.log("✅ Firestore initialized:", db);
+
+        // Initialize Firebase Auth
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // Make db and auth available globally
+        window.db = db;
+        window.auth = auth;
+        window.currentUser = null;
+
+        // Monitor auth state changes
+        // Modify your onAuthStateChanged function to properly update all buttons
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                window.currentUser = user;
+                console.log("User signed in:", user.displayName);
+
+                // Update all login buttons
+                const loginButtons = document.querySelectorAll("#login-button");
+                loginButtons.forEach(button => {
+                    button.style.display = 'none'; // Hide login button
+                });
+
+                // Show add pub button when logged in
+                const addPubBtn = document.getElementById("add-pub-btn");
+                if (addPubBtn) {
+                    addPubBtn.style.display = 'block';
+                    addPubBtn.textContent = 'Add Your Pub';
+                }
+
+                // Show the visibility note
+                const pubVisibilityNote = document.getElementById("pub-visibility-note");
+                if (pubVisibilityNote) {
+                    pubVisibilityNote.style.display = 'inline';
+                }
+
+                // Update user display
+                const userDisplay = document.getElementById("user-display");
+                if (userDisplay) {
+                    userDisplay.textContent = `Logged in as ${user.displayName}`;
+                    userDisplay.style.display = 'inline';
+                }
+
+                // Show logout button
+                const logoutButton = document.getElementById("logout-button");
+                if (logoutButton) {
+                    logoutButton.style.display = 'inline-block';
+                }
+
+                // Refresh the map to include user's entries
+                fetchAllPubs().then(() => {
+                    renderMarkers(allPubs, initialFilters);
+                });
+            } else {
+                // User is signed out
+                window.currentUser = null;
+
+                // Update login buttons
+                const loginButtons = document.querySelectorAll("#login-button");
+                loginButtons.forEach(button => {
+                    button.style.display = 'inline-block';
+                    button.textContent = "Login to Add Your Own Pubs";
+                });
+
+                // Hide add pub button when logged out
+                const addPubBtn = document.getElementById("add-pub-btn");
+                if (addPubBtn) {
+                    addPubBtn.style.display = 'none';
+                }
+
+                // Hide the visibility note
+                const pubVisibilityNote = document.getElementById("pub-visibility-note");
+                if (pubVisibilityNote) {
+                    pubVisibilityNote.style.display = 'none';
+                }
+
+                // Clear user display
+                const userDisplay = document.getElementById("user-display");
+                if (userDisplay) {
+                    userDisplay.textContent = '';
+                    userDisplay.style.display = 'none';
+                }
+
+                // Hide logout button
+                const logoutButton = document.getElementById("logout-button");
+                if (logoutButton) {
+                    logoutButton.style.display = 'none';
+                }
+            }
+        });
+    </script>
+
+    <script type="module">
+        import { collection, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        // Add login functionality
+        // Get reference to existing login button instead of creating a new one
+        const loginButton = document.getElementById("login-button");
+
+        loginButton.addEventListener("click", () => {
+            if (!window.currentUser) {
+                signInWithPopup(window.auth, new GoogleAuthProvider())
+                    .then((result) => {
+                        const user = result.user;
+                        console.log("Logged in user:", user.displayName);
+                    }).catch((error) => {
+                        console.error("Error during authentication:", error);
+                    });
+            } else {
+                // Already logged in - show dialog to add pub
+                const modal = new bootstrap.Modal(document.getElementById('pubModal'));
+                modal.show();
+            }
+        });
+
+        // Handle pub form submission
+        document.getElementById("pub-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            // Check if user is logged in
+            if (!window.currentUser) {
+                alert("Please log in with Google to add your own pubs.");
+                return;
+            }
+
+            const db = window.db;
+            if (!db) {
+                console.error("Firestore is not initialized.");
+                alert("Error: Firestore not initialized.");
+                return;
+            }
+
+            const pubName = document.getElementById("pub-name").value;
+            const latitude = parseFloat(document.getElementById("latitude").value);
+            const longitude = parseFloat(document.getElementById("longitude").value);
+            const locationScore = parseInt(document.getElementById("location-score").value);
+            const atmosphereScore = parseInt(document.getElementById("atmosphere-score").value);
+            const drinksScore = parseInt(document.getElementById("drinks-score").value);
+            const valueScore = parseInt(document.getElementById("value-score").value);
+            const facilitiesScore = parseInt(document.getElementById("facilities-score").value);
+            const totalScore = locationScore + atmosphereScore + drinksScore + valueScore + facilitiesScore;
+
+            // Generate ID in the format pub_latitude_longitude
+            const pubId = `${pubName}_${latitude}_${longitude}`.replace(/\s+/g, "_").toLowerCase();
+
+            try {
+                const pubData = {
+                    Pub: pubName,
+                    latitude: latitude,
+                    longitude: longitude,
+                    Total: totalScore,
+                    Location: locationScore,
+                    Atmos: atmosphereScore,
+                    Drinks: drinksScore,
+                    Value: valueScore,
+                    Facilities: facilitiesScore,
+                    timestamp: new Date(),
+                    isUserEntry: true,
+                    userId: window.currentUser.uid,
+                    userDisplayName: window.currentUser.displayName
+                };
+
+                await setDoc(doc(db, "pubs", pubId), pubData);
+
+                alert("Pub added successfully!");
+
+                const newPub = {
+                    Pub: pubName,
+                    latitude: latitude,
+                    longitude: longitude,
+                    Total: totalScore,
+                    Location: locationScore,
+                    Atmos: atmosphereScore,
+                    Drinks: drinksScore,
+                    Value: valueScore,
+                    Facilities: facilitiesScore,
+                    isUserEntry: true,
+                    userId: window.currentUser.uid,
+                    userDisplayName: window.currentUser.displayName
+                };
+
+                allPubs.push(newPub);
+                renderMarkers(allPubs, initialFilters);
+
+                document.getElementById("pub-form").reset();
+
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('pubModal'));
+                modal.hide();
+
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert("Error adding pub. Please try again.");
+            }
+        });
+
+        // Modify the fetchAllPubs function to handle user entries
+        window.fetchAllPubsOriginal = window.fetchAllPubs; // Save the original function
+
+        window.fetchAllPubs = async function (nextPageToken = null) {
+            // Reset allPubs array if we're starting fresh (no nextPageToken)
+            if (!nextPageToken) {
+                window.allPubs = [];
+            }
+
+            let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs?pageSize=100';
+            if (nextPageToken) {
+                url += `&pageToken=${nextPageToken}`;
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (!data.documents) {
+                    console.error('No documents found in Firestore.');
+                    return window.allPubs;
+                }
+
+                const pubs = data.documents.map(doc => {
+                    const fields = doc.fields;
+                    const isUserEntry = fields.isUserEntry?.booleanValue ?? false;
+                    const userId = fields.userId?.stringValue ?? null;
+
+                    // Include if it's a core pub OR if it belongs to the current user
+                    if (!isUserEntry || (window.currentUser && userId === window.currentUser.uid)) {
+                        return {
+                            Pub: fields.Pub?.stringValue ?? "Unknown Pub",
+                            latitude: fields.latitude?.doubleValue ?? null,
+                            longitude: fields.longitude?.doubleValue ?? null,
+                            Total: parseInt(fields.Total?.integerValue ?? 0),
+                            Location: parseInt(fields.Location?.integerValue ?? 0),
+                            Atmos: parseInt(fields.Atmos?.integerValue ?? 0),
+                            Drinks: parseInt(fields.Drinks?.integerValue ?? 0),
+                            Value: parseInt(fields.Value?.integerValue ?? 0),
+                            Facilities: parseInt(fields.Facilities?.integerValue ?? 0),
+                            isUserEntry: isUserEntry,
+                            userId: userId
+                        };
+                    }
+                    return null;
+                }).filter(pub => pub !== null);
+
+                // Important: Concatenate rather than replace
+                window.allPubs = window.allPubs.concat(pubs);
+                console.log(`Loaded ${pubs.length} pubs, total now: ${window.allPubs.length}`);
+
+                // Handle pagination
+                if (data.nextPageToken) {
+                    // Recursively fetch the next page
+                    return await fetchAllPubs(data.nextPageToken);
+                } else {
+                    console.log(`Finished loading all ${window.allPubs.length} pubs`);
+                    return window.allPubs;
+                }
+            } catch (error) {
+                console.error('Error loading pubs from Firebase:', error);
+                return window.allPubs;
+            }
+        };
+
+        // Update the marker creation function to show different styling for user entries
+        window.renderMarkersOriginal = window.renderMarkers; // Save original function
+
+        // Update the renderMarkers function to handle larger sets
+        window.renderMarkers = function (pubs, filters) {
+            // Clear existing markers
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            console.log(`Before filtering: ${pubs.length} pubs`);
+            const filteredPubs = filterPubsByScore(pubs, filters);
+            console.log(`After filtering: ${filteredPubs.length} pubs to render`);
+
+            // Add markers for each filtered pub
+            filteredPubs.forEach(pub => {
+                // Skip pubs with invalid coordinates
+                if (pub.latitude === null || pub.longitude === null) {
+                    console.warn(`Skipping pub with invalid coordinates: ${pub.Pub}`);
+                    return;
+                }
+
+                // Determine marker color based on score
+                let markerColor = getMarkerColor(pub.Total);
+
+                // Create marker with special style for user entries
+                const markerIcon = L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div style="
+                        background-color: ${markerColor};
+                        width: 25px;
+                        height: 25px;
+                        border-radius: 50%;
+                        ${pub.isUserEntry ? 'border: 3px solid #3366ff; box-shadow: 0 0 5px #3366ff;' : ''}
+                    "></div>`,
+                    iconSize: [25, 25],
+                    iconAnchor: [12, 25],
+                    popupAnchor: [1, -34]
+                });
+
+                L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
+                    .addTo(map)
+                    .bindPopup(`<b>${pub.Pub}</b><br>
+                                ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
+                                Total Score: ${pub.Total}<br>
+                                Location: ${pub.Location}<br>
+                                Atmosphere: ${pub.Atmos}<br>
+                                Drinks: ${pub.Drinks}<br>
+                                Value: ${pub.Value}<br>
+                                Facilities: ${pub.Facilities}
+                            `);
+            });
+        };
+    </script>
+
+    <script>
+        // Fix for pagination and filtering issues
+        document.addEventListener('DOMContentLoaded', function () {
+            // Create a global variable to store all pubs
+            window.completeAllPubs = [];
+
+            // Override the existing fetchAllPubs function
+            window.fetchAllPubsOriginal = window.fetchAllPubs;
+            window.fetchAllPubs = async function (nextPageToken = null) {
+                // Reset the array when starting a fresh fetch
+                if (!nextPageToken) {
+                    window.completeAllPubs = [];
+                }
+
+                let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs?pageSize=100';
+                if (nextPageToken) {
+                    url += `&pageToken=${nextPageToken}`;
+                }
+
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (!data.documents) {
+                        console.error('No documents found in Firestore.');
+                        return window.completeAllPubs;
+                    }
+
+                    const pubs = data.documents.map(doc => {
+                        const fields = doc.fields;
+                        const isUserEntry = fields.isUserEntry?.booleanValue ?? false;
+                        const userId = fields.userId?.stringValue ?? null;
+
+                        // Include if it's a core pub OR if it belongs to the current user
+                        if (!isUserEntry || (window.currentUser && userId === window.currentUser.uid)) {
+                            return {
+                                Pub: fields.Pub?.stringValue ?? "Unknown Pub",
+                                latitude: fields.latitude?.doubleValue ?? null,
+                                longitude: fields.longitude?.doubleValue ?? null,
+                                Total: parseInt(fields.Total?.integerValue ?? 0),
+                                Location: parseInt(fields.Location?.integerValue ?? 0),
+                                Atmos: parseInt(fields.Atmos?.integerValue ?? 0),
+                                Drinks: parseInt(fields.Drinks?.integerValue ?? 0),
+                                Value: parseInt(fields.Value?.integerValue ?? 0),
+                                Facilities: parseInt(fields.Facilities?.integerValue ?? 0),
+                                isUserEntry: isUserEntry,
+                                userId: userId
+                            };
+                        }
+                        return null;
+                    }).filter(pub => pub !== null);
+
+                    // Concatenate to our global array
+                    window.completeAllPubs = window.completeAllPubs.concat(pubs);
+                    console.log(`Loaded ${pubs.length} pubs, total now: ${window.completeAllPubs.length}`);
+
+                    // Make the standard allPubs variable match our complete set
+                    window.allPubs = window.completeAllPubs;
+
+                    if (data.nextPageToken) {
+                        // Continue fetching
+                        return await window.fetchAllPubs(data.nextPageToken);
+                    } else {
+                        console.log(`COMPLETED: Total pubs loaded: ${window.completeAllPubs.length}`);
+                        return window.completeAllPubs;
+                    }
+                } catch (error) {
+                    console.error('Error loading pubs from Firebase:', error);
+                    return window.completeAllPubs;
+                }
+            };
+
+            // Override the filter function
+            window.filterPubsByScoreOriginal = window.filterPubsByScore || function () { };
+            window.filterPubsByScore = function (pubs, filters) {
+                // Ensure we're using the complete set of pubs
+                const pubsToFilter = window.completeAllPubs.length > 0 ? window.completeAllPubs : pubs;
+                console.log(`Filtering ${pubsToFilter.length} pubs with filters:`, filters);
+
+                const filtered = pubsToFilter.filter(pub =>
+                    pub.Total >= filters.Total &&
+                    pub.Location >= filters.Location &&
+                    pub.Atmos >= filters.Atmos &&
+                    pub.Drinks >= filters.Drinks &&
+                    pub.Value >= filters.Value &&
+                    pub.Facilities >= filters.Facilities
+                );
+
+                console.log(`Filtering result: ${filtered.length} pubs passed the filters`);
+                return filtered;
+            };
+
+            // Override the update function
+            window.updateMapWithFiltersOriginal = window.updateMapWithFilters;
+            window.updateMapWithFilters = function () {
+                const filters = {
+                    Total: parseInt(document.getElementById('score-filter').value),
+                    Location: parseInt(document.getElementById('location-filter').value),
+                    Atmos: parseInt(document.getElementById('atmos-filter').value),
+                    Drinks: parseInt(document.getElementById('drinks-filter').value),
+                    Value: parseInt(document.getElementById('value-filter').value),
+                    Facilities: parseInt(document.getElementById('facilities-filter').value)
+                };
+
+                console.log(`Updating map with filters using ${window.completeAllPubs.length} pubs`);
+                // Use our complete set of pubs
+                window.renderMarkers(window.completeAllPubs, filters);
+            };
+
+            // Override the render function
+            window.renderMarkersOriginal = window.renderMarkers;
+            window.renderMarkers = function (pubs, filters) {
+                // Clear existing markers
+                map.eachLayer(layer => {
+                    if (layer instanceof L.Marker) {
+                        map.removeLayer(layer);
+                    }
+                });
+
+                // Use our complete set if available
+                const pubsToRender = window.completeAllPubs.length > 0 ? window.completeAllPubs : pubs;
+                console.log(`Rendering from ${pubsToRender.length} total pubs`);
+
+                const filteredPubs = window.filterPubsByScore(pubsToRender, filters);
+                console.log(`Adding ${filteredPubs.length} markers to the map`);
+
+                filteredPubs.forEach(pub => {
+                    if (pub.latitude === null || pub.longitude === null) {
+                        console.warn(`Skipping pub with invalid coordinates: ${pub.Pub}`);
+                        return;
+                    }
+
+                    let markerColor = getMarkerColor(pub.Total);
+
+                    const markerIcon = L.divIcon({
+                        className: 'custom-icon',
+                        html: `<div style="
+                            background-color: ${markerColor};
+                            width: 25px;
+                            height: 25px;
+                            border-radius: 50%;
+                            ${pub.isUserEntry ? 'border: 3px solid #3366ff; box-shadow: 0 0 5px #3366ff;' : ''}
+                        "></div>`,
+                        iconSize: [25, 25],
+                        iconAnchor: [12, 25],
+                        popupAnchor: [1, -34]
+                    });
+
+                    L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
+                        .addTo(map)
+                        .bindPopup(`<b>${pub.Pub}</b><br>
+                                    ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
+                                    Total Score: ${pub.Total}<br>
+                                    Location: ${pub.Location}<br>
+                                    Atmosphere: ${pub.Atmos}<br>
+                                    Drinks: ${pub.Drinks}<br>
+                                    Value: ${pub.Value}<br>
+                                    Facilities: ${pub.Facilities}
+                                `);
+                });
+            };
+
+            // Refetch all pubs after our overrides are in place
+            console.log("Reinitializing pub data with fixed functions...");
+            window.fetchAllPubs().then(() => {
+                console.log(`Initialization complete. Loaded ${window.completeAllPubs.length} pubs.`);
+                window.renderMarkers(window.completeAllPubs, {
+                    Total: 0,
+                    Location: 0,
+                    Atmos: 0,
+                    Drinks: 0,
+                    Value: 0,
+                    Facilities: 0
+                });
+            });
+        });
+    </script>
 </body>
 </html>
