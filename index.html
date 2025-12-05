@@ -62,24 +62,24 @@
             <span id="score-value">0</span>
         </label>
         <label>
-            <span>Location:</span>
-            <input type="number" id="location-filter" min="0" max="5" value="0" step="1">
-        </label>
-        <label>
             <span>Atmosphere:</span>
             <input type="number" id="atmos-filter" min="0" max="5" value="0" step="1">
+        </label>
+        <label>
+            <span>Character:</span>
+            <input type="number" id="character-filter" min="0" max="5" value="0" step="1">
         </label>
         <label>
             <span>Drinks:</span>
             <input type="number" id="drinks-filter" min="0" max="5" value="0" step="1">
         </label>
         <label>
-            <span>Value:</span>
-            <input type="number" id="value-filter" min="0" max="5" value="0" step="1">
-        </label>
-        <label>
             <span>Facilities:</span>
             <input type="number" id="facilities-filter" min="0" max="5" value="0" step="1">
+        </label>
+        <label>
+            <span>Location:</span>
+            <input type="number" id="location-filter" min="0" max="5" value="0" step="1">
         </label>
         <p><em>Grey label denotes missing value. 0 is a missing value not zero score.</em></p>
     </div>
@@ -110,7 +110,7 @@
                 pub.Location >= filters.Location &&
                 pub.Atmos >= filters.Atmos &&
                 pub.Drinks >= filters.Drinks &&
-                pub.Value >= filters.Value &&
+                pub.Character >= filters.Character &&
                 pub.Facilities >= filters.Facilities
             );
             console.log('Filtered Pubs:', filtered);
@@ -123,7 +123,7 @@
                 Location: parseInt(document.getElementById('location-filter').value),
                 Atmos: parseInt(document.getElementById('atmos-filter').value),
                 Drinks: parseInt(document.getElementById('drinks-filter').value),
-                Value: parseInt(document.getElementById('value-filter').value),
+                Character: parseInt(document.getElementById('character-filter').value),
                 Facilities: parseInt(document.getElementById('facilities-filter').value)
             };
             console.log('Filters:', filters);
@@ -152,11 +152,11 @@
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
                              Total Score: ${pub.Total}<br>
-                             Location: ${pub.Location}<br>
                              Atmosphere: ${pub.Atmos}<br>
+                             Character: ${pub.Character}<br>
                              Drinks: ${pub.Drinks}<br>
-                             Value: ${pub.Value}<br>
-                             Facilities: ${pub.Facilities}
+                             Facilities: ${pub.Facilities}<br>
+                             Location: ${pub.Location}<br>
                         `);
             });
         }
@@ -221,7 +221,7 @@
                     Location: parseInt(document.getElementById('location-filter').value),
                     Atmos: parseInt(document.getElementById('atmos-filter').value),
                     Drinks: parseInt(document.getElementById('drinks-filter').value),
-                    Value: parseInt(document.getElementById('value-filter').value),
+                    Character: parseInt(document.getElementById('character-filter').value),
                     Facilities: parseInt(document.getElementById('facilities-filter').value)
                 };
 
@@ -234,7 +234,7 @@
                 document.getElementById('location-filter').addEventListener('input', updateMapWithFilters);
                 document.getElementById('atmos-filter').addEventListener('input', updateMapWithFilters);
                 document.getElementById('drinks-filter').addEventListener('input', updateMapWithFilters);
-                document.getElementById('value-filter').addEventListener('input', updateMapWithFilters);
+                document.getElementById('character-filter').addEventListener('input', updateMapWithFilters);
                 document.getElementById('facilities-filter').addEventListener('input', updateMapWithFilters);
             })
             .catch(error => console.error('Error loading pubs.json:', error));
