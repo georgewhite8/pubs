@@ -62,24 +62,24 @@
             <span id="score-value">0</span>
         </label>
         <label>
-            <span>Atmosphere:</span>
-            <input type="number" id="atmos-filter" min="0" max="5" value="0" step="1">
+            <span>Location:</span>
+            <input type="number" id="location-filter" min="0" max="5" value="0" step="1">
         </label>
         <label>
-            <span>Character:</span>
-            <input type="number" id="character-filter" min="0" max="5" value="0" step="1">
+            <span>Atmosphere:</span>
+            <input type="number" id="atmos-filter" min="0" max="5" value="0" step="1">
         </label>
         <label>
             <span>Drinks:</span>
             <input type="number" id="drinks-filter" min="0" max="5" value="0" step="1">
         </label>
         <label>
-            <span>Facilities:</span>
-            <input type="number" id="facilities-filter" min="0" max="5" value="0" step="1">
+            <span>Value:</span>
+            <input type="number" id="value-filter" min="0" max="5" value="0" step="1">
         </label>
         <label>
-            <span>Location:</span>
-            <input type="number" id="location-filter" min="0" max="5" value="0" step="1">
+            <span>Facilities:</span>
+            <input type="number" id="facilities-filter" min="0" max="5" value="0" step="1">
         </label>
         <p><em>Grey label denotes missing value. 0 is a missing value not zero score.</em></p>
     </div>
@@ -110,7 +110,7 @@
                 pub.Location >= filters.Location &&
                 pub.Atmos >= filters.Atmos &&
                 pub.Drinks >= filters.Drinks &&
-                pub.Character >= filters.Character &&
+                pub.Value >= filters.Value &&
                 pub.Facilities >= filters.Facilities
             );
             console.log('Filtered Pubs:', filtered);
@@ -123,7 +123,7 @@
                 Location: parseInt(document.getElementById('location-filter').value),
                 Atmos: parseInt(document.getElementById('atmos-filter').value),
                 Drinks: parseInt(document.getElementById('drinks-filter').value),
-                Character: parseInt(document.getElementById('character-filter').value),
+                Value: parseInt(document.getElementById('value-filter').value),
                 Facilities: parseInt(document.getElementById('facilities-filter').value)
             };
             console.log('Filters:', filters);
@@ -143,8 +143,8 @@
                 const markerIcon = L.divIcon({
                     className: 'custom-icon',
                     html: `<div style="background-color: ${markerColor}; width: 25px; height: 25px; border-radius: 50%;"></div>`,
-                    iconSize: [20, 20],  // Size of the marker
-                    iconAnchor: [10, 20],  // Point of the icon that will correspond to marker's location
+                    iconSize: [15, 15],  // Size of the marker
+                    iconAnchor: [7.5, 7.5],  // Point of the icon that will correspond to marker's location
                     popupAnchor: [1, -34]  // Position of the popup relative to the icon
                 });
 
@@ -152,11 +152,11 @@
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
                              Total Score: ${pub.Total}<br>
-                             Atmosphere: ${pub.Atmos}<br>
-                             Character: ${pub.Character}<br>
-                             Drinks: ${pub.Drinks}<br>
-                             Facilities: ${pub.Facilities}<br>
                              Location: ${pub.Location}<br>
+                             Atmosphere: ${pub.Atmos}<br>
+                             Drinks: ${pub.Drinks}<br>
+                             Value: ${pub.Value}<br>
+                             Facilities: ${pub.Facilities}
                         `);
             });
         }
@@ -221,7 +221,7 @@
                     Location: parseInt(document.getElementById('location-filter').value),
                     Atmos: parseInt(document.getElementById('atmos-filter').value),
                     Drinks: parseInt(document.getElementById('drinks-filter').value),
-                    Character: parseInt(document.getElementById('character-filter').value),
+                    Value: parseInt(document.getElementById('value-filter').value),
                     Facilities: parseInt(document.getElementById('facilities-filter').value)
                 };
 
@@ -234,7 +234,7 @@
                 document.getElementById('location-filter').addEventListener('input', updateMapWithFilters);
                 document.getElementById('atmos-filter').addEventListener('input', updateMapWithFilters);
                 document.getElementById('drinks-filter').addEventListener('input', updateMapWithFilters);
-                document.getElementById('character-filter').addEventListener('input', updateMapWithFilters);
+                document.getElementById('value-filter').addEventListener('input', updateMapWithFilters);
                 document.getElementById('facilities-filter').addEventListener('input', updateMapWithFilters);
             })
             .catch(error => console.error('Error loading pubs.json:', error));
