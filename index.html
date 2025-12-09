@@ -83,24 +83,24 @@
             <span id="score-value">0</span>
         </label>
         <label>
-            <span>Location:</span>
-            <input type="number" id="location-filter" min="0" max="5" value="0" step="1">
-        </label>
-        <label>
             <span>Atmosphere:</span>
             <input type="number" id="atmos-filter" min="0" max="5" value="0" step="1">
+        </label>
+        <label>
+            <span>Character:</span>
+            <input type="number" id="character-filter" min="0" max="5" value="0" step="1">
         </label>
         <label>
             <span>Drinks:</span>
             <input type="number" id="drinks-filter" min="0" max="5" value="0" step="1">
         </label>
         <label>
-            <span>Value:</span>
-            <input type="number" id="value-filter" min="0" max="5" value="0" step="1">
-        </label>
-        <label>
             <span>Facilities:</span>
             <input type="number" id="facilities-filter" min="0" max="5" value="0" step="1">
+        </label>
+        <label>
+            <span>Location:</span>
+            <input type="number" id="location-filter" min="0" max="5" value="0" step="1">
         </label>
         <p><em>Grey label denotes missing value. 0 is a missing value not zero score.</em></p>
     </div>
@@ -117,7 +117,7 @@
         let currentUser = null;
 
         function getMarkerColor(Total) {
-            if (Total >= 17) {
+            if (Total >= 18) {
                 return '#1A9850';
             } else if (Total >= 14) {
                 return '#E69F00';
@@ -155,11 +155,11 @@
 
             const filtered = allPubsToFilter.filter(pub =>
                 pub.Total >= filters.Total &&
-                pub.Location >= filters.Location &&
                 pub.Atmos >= filters.Atmos &&
+                pub.Character >= filters.Character &&
                 pub.Drinks >= filters.Drinks &&
-                pub.Value >= filters.Value &&
-                pub.Facilities >= filters.Facilities
+                pub.Facilities >= filters.Facilities &&
+                pub.Location >= filters.Location
             );
 
             console.log('Filtered Pubs count:', filtered.length);
@@ -169,11 +169,11 @@
         function updateMapWithFilters() {
             const filters = {
                 Total: parseInt(document.getElementById('score-filter').value),
-                Location: parseInt(document.getElementById('location-filter').value),
                 Atmos: parseInt(document.getElementById('atmos-filter').value),
+                Character: parseInt(document.getElementById('character-filter').value),
                 Drinks: parseInt(document.getElementById('drinks-filter').value),
-                Value: parseInt(document.getElementById('value-filter').value),
-                Facilities: parseInt(document.getElementById('facilities-filter').value)
+                Facilities: parseInt(document.getElementById('facilities-filter').value),
+                Location: parseInt(document.getElementById('location-filter').value)
             };
 
             console.log('Updating map with filters, total pubs:', window.allPubs.length);
@@ -212,11 +212,11 @@
                                 <b>${pub.Pub}</b><br>
                                 ${pub.isUserEntry ? '<i>Your entry</i><br>' : ''}
                                 Total Score: ${pub.Total}<br>
-                                Location: ${pub.Location}<br>
-                                Atmosphere: ${pub.Atmos}<br>
+                                Atmosphere: ${pub.Atmos}<br
+                                Character: ${pub.Character}<br>
                                 Drinks: ${pub.Drinks}<br>
-                                Value: ${pub.Value}<br>
-                                Facilities: ${pub.Facilities}
+                                Facilities: ${pub.Facilities}<br>
+                                Location: ${pub.Location}
                             `;
 
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
@@ -269,18 +269,18 @@
 
         const initialFilters = {
             Total: 0,
-            Location: 0,
             Atmos: 0,
+            Character: 0,
             Drinks: 0,
-            Value: 0,
-            Facilities: 0
+            Facilities: 0,
+            Location: 0
         };
 
         // Add markers dynamically
         let allPubs = [];
 
         async function fetchAllPubs(nextPageToken = null) {
-            let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs?pageSize=100';
+            let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs2?pageSize=100';
             if (nextPageToken) {
                 url += `&pageToken=${nextPageToken}`;
             }
@@ -305,11 +305,11 @@
                                 latitude: fields.latitude?.doubleValue ?? null,
                                 longitude: fields.longitude?.doubleValue ?? null,
                                 Total: parseInt(fields.Total?.integerValue ?? 0),
-                                Location: parseInt(fields.Location?.integerValue ?? 0),
                                 Atmos: parseInt(fields.Atmos?.integerValue ?? 0),
+                                Character: parseInt(fields.Character?.integerValue ?? 0),
                                 Drinks: parseInt(fields.Drinks?.integerValue ?? 0),
-                                Value: parseInt(fields.Value?.integerValue ?? 0),
                                 Facilities: parseInt(fields.Facilities?.integerValue ?? 0),
+                                Location: parseInt(fields.Location?.integerValue ?? 0),
                                 isUserEntry: isUserEntry,
                                 userId: userId
                             };
@@ -339,11 +339,11 @@
             document.getElementById('score-value').textContent = this.value;
             updateMapWithFilters();
         });
-        document.getElementById('location-filter').addEventListener('input', updateMapWithFilters);
         document.getElementById('atmos-filter').addEventListener('input', updateMapWithFilters);
+        document.getElementById('character-filter').addEventListener('input', updateMapWithFilters);
         document.getElementById('drinks-filter').addEventListener('input', updateMapWithFilters);
-        document.getElementById('value-filter').addEventListener('input', updateMapWithFilters);
         document.getElementById('facilities-filter').addEventListener('input', updateMapWithFilters);
+        document.getElementById('location-filter').addEventListener('input', updateMapWithFilters);
 
         addLiveLocation();
     </script>
@@ -384,24 +384,24 @@
                             <small class="form-text text-muted"><em>You can find coordinates by dropping a pin on a maps app.</em></small>
                         </div>
                         <div class="mb-3">
-                            <label for="location-score" class="form-label">Location (1-5):</label>
-                            <input type="number" id="location-score" class="form-control" min="1" max="5" required>
-                        </div>
-                        <div class="mb-3">
                             <label for="atmosphere-score" class="form-label">Atmosphere (1-5):</label>
                             <input type="number" id="atmosphere-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="character-score" class="form-label">Character (1-5):</label>
+                            <input type="number" id="character-score" class="form-control" min="1" max="5" required>
                         </div>
                         <div class="mb-3">
                             <label for="drinks-score" class="form-label">Drinks (1-5):</label>
                             <input type="number" id="drinks-score" class="form-control" min="1" max="5" required>
                         </div>
                         <div class="mb-3">
-                            <label for="value-score" class="form-label">Value (1-5):</label>
-                            <input type="number" id="value-score" class="form-control" min="1" max="5" required>
-                        </div>
-                        <div class="mb-3">
                             <label for="facilities-score" class="form-label">Facilities (1-5):</label>
                             <input type="number" id="facilities-score" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location-score" class="form-label">Location (1-5):</label>
+                            <input type="number" id="location-score" class="form-control" min="1" max="5" required>
                         </div>
                         <button type="submit" class="btn btn-success">Submit</button>
                     </form>
@@ -567,12 +567,12 @@
             const pubName = document.getElementById("pub-name").value;
             const latitude = parseFloat(document.getElementById("latitude").value);
             const longitude = parseFloat(document.getElementById("longitude").value);
-            const locationScore = parseInt(document.getElementById("location-score").value);
             const atmosphereScore = parseInt(document.getElementById("atmosphere-score").value);
+            const characterScore = parseInt(document.getElementById("character-score").value);
             const drinksScore = parseInt(document.getElementById("drinks-score").value);
-            const valueScore = parseInt(document.getElementById("value-score").value);
             const facilitiesScore = parseInt(document.getElementById("facilities-score").value);
-            const totalScore = locationScore + atmosphereScore + drinksScore + valueScore + facilitiesScore;
+            const locationScore = parseInt(document.getElementById("location-score").value);
+            const totalScore = atmosphereScore + characterScore + drinksScore + facilitiesScore + locationScore;
 
             // Generate ID in the format pub_latitude_longitude
             const pubId = `${pubName}_${latitude}_${longitude}`.replace(/\s+/g, "_").toLowerCase();
@@ -583,11 +583,11 @@
                     latitude: latitude,
                     longitude: longitude,
                     Total: totalScore,
-                    Location: locationScore,
                     Atmos: atmosphereScore,
+                    Character: characterScore,
                     Drinks: drinksScore,
-                    Value: valueScore,
                     Facilities: facilitiesScore,
+                    Location: locationScore,
                     timestamp: new Date(),
                     isUserEntry: true,
                     userId: window.currentUser.uid,
@@ -603,11 +603,11 @@
                     latitude: latitude,
                     longitude: longitude,
                     Total: totalScore,
-                    Location: locationScore,
                     Atmos: atmosphereScore,
+                    Character: characterScore,
                     Drinks: drinksScore,
-                    Value: valueScore,
                     Facilities: facilitiesScore,
+                    Location: locationScore,
                     isUserEntry: true,
                     userId: window.currentUser.uid,
                     userDisplayName: window.currentUser.displayName
@@ -637,7 +637,7 @@
                 window.allPubs = [];
             }
 
-            let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs?pageSize=100';
+            let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs2?pageSize=100';
             if (nextPageToken) {
                 url += `&pageToken=${nextPageToken}`;
             }
@@ -663,11 +663,11 @@
                             latitude: fields.latitude?.doubleValue ?? null,
                             longitude: fields.longitude?.doubleValue ?? null,
                             Total: parseInt(fields.Total?.integerValue ?? 0),
-                            Location: parseInt(fields.Location?.integerValue ?? 0),
                             Atmos: parseInt(fields.Atmos?.integerValue ?? 0),
+                            Character: parseInt(fields.Character?.integerValue ?? 0),
                             Drinks: parseInt(fields.Drinks?.integerValue ?? 0),
-                            Value: parseInt(fields.Value?.integerValue ?? 0),
                             Facilities: parseInt(fields.Facilities?.integerValue ?? 0),
+                            Location: parseInt(fields.Location?.integerValue ?? 0),
                             isUserEntry: isUserEntry,
                             userId: userId
                         };
@@ -740,11 +740,11 @@
                     .bindPopup(`<b>${pub.Pub}</b><br>
                                 ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
                                 Total Score: ${pub.Total}<br>
-                                Location: ${pub.Location}<br>
                                 Atmosphere: ${pub.Atmos}<br>
+                                Character: ${pub.Character}<br>
                                 Drinks: ${pub.Drinks}<br>
-                                Value: ${pub.Value}<br>
-                                Facilities: ${pub.Facilities}
+                                Facilities: ${pub.Facilities}<br>
+                                Location: ${pub.Location}
                             `);
             });
         };
@@ -764,7 +764,7 @@
                     window.completeAllPubs = [];
                 }
 
-                let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs?pageSize=100';
+                let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs2?pageSize=100';
                 if (nextPageToken) {
                     url += `&pageToken=${nextPageToken}`;
                 }
@@ -790,11 +790,11 @@
                                 latitude: fields.latitude?.doubleValue ?? null,
                                 longitude: fields.longitude?.doubleValue ?? null,
                                 Total: parseInt(fields.Total?.integerValue ?? 0),
-                                Location: parseInt(fields.Location?.integerValue ?? 0),
                                 Atmos: parseInt(fields.Atmos?.integerValue ?? 0),
+                                Character: parseInt(fields.Character?.integerValue ?? 0),
                                 Drinks: parseInt(fields.Drinks?.integerValue ?? 0),
-                                Value: parseInt(fields.Value?.integerValue ?? 0),
                                 Facilities: parseInt(fields.Facilities?.integerValue ?? 0),
+                                Location: parseInt(fields.Location?.integerValue ?? 0),
                                 isUserEntry: isUserEntry,
                                 userId: userId
                             };
@@ -831,11 +831,11 @@
 
                 const filtered = pubsToFilter.filter(pub =>
                     pub.Total >= filters.Total &&
-                    pub.Location >= filters.Location &&
                     pub.Atmos >= filters.Atmos &&
+                    pub.Character >= filters.Character &&
                     pub.Drinks >= filters.Drinks &&
-                    pub.Value >= filters.Value &&
-                    pub.Facilities >= filters.Facilities
+                    pub.Facilities >= filters.Facilities &&
+                    pub.Location >= filters.Location
                 );
 
                 console.log(`Filtering result: ${filtered.length} pubs passed the filters`);
@@ -847,11 +847,11 @@
             window.updateMapWithFilters = function () {
                 const filters = {
                     Total: parseInt(document.getElementById('score-filter').value),
-                    Location: parseInt(document.getElementById('location-filter').value),
                     Atmos: parseInt(document.getElementById('atmos-filter').value),
+                    Character: parseInt(document.getElementById('character-filter').value),
                     Drinks: parseInt(document.getElementById('drinks-filter').value),
-                    Value: parseInt(document.getElementById('value-filter').value),
-                    Facilities: parseInt(document.getElementById('facilities-filter').value)
+                    Facilities: parseInt(document.getElementById('facilities-filter').value),
+                    Location: parseInt(document.getElementById('location-filter').value)
                 };
 
                 console.log(`Updating map with filters using ${window.completeAllPubs.length} pubs`);
@@ -903,11 +903,11 @@
                         .bindPopup(`<b>${pub.Pub}</b><br>
                                     ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
                                     Total Score: ${pub.Total}<br>
-                                    Location: ${pub.Location}<br>
                                     Atmosphere: ${pub.Atmos}<br>
+                                    Character: ${pub.Character}<br>
                                     Drinks: ${pub.Drinks}<br>
-                                    Value: ${pub.Value}<br>
-                                    Facilities: ${pub.Facilities}
+                                    Facilities: ${pub.Facilities}<br>
+                                    Location: ${pub.Location}<br>
                                 `);
                 });
             };
@@ -918,11 +918,11 @@
                 console.log(`Initialization complete. Loaded ${window.completeAllPubs.length} pubs.`);
                 window.renderMarkers(window.completeAllPubs, {
                     Total: 0,
-                    Location: 0,
                     Atmos: 0,
+                    Character: 0,
                     Drinks: 0,
-                    Value: 0,
-                    Facilities: 0
+                    Facilities: 0,
+                    Location: 0
                 });
             });
         });
