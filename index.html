@@ -280,7 +280,7 @@
         let allPubs = [];
 
         async function fetchAllPubs(nextPageToken = null) {
-            let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs?pageSize=100';
+            let url = 'https://firestore.googleapis.com/v1/projects/london-pubs-gw/databases/(default)/documents/pubs2?pageSize=100';
             if (nextPageToken) {
                 url += `&pageToken=${nextPageToken}`;
             }
