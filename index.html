@@ -107,6 +107,82 @@
 
     <div id="map"></div>
 
+    <!-- Rating Criteria Accordions -->
+    <div class="container my-4">
+        <h3 class="mb-3">Rating Criteria Definitions</h3>
+        <div class="accordion" id="criteriaAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#atmosphereCollapse">
+                        Atmosphere
+                    </button>
+                </h2>
+                <div id="atmosphereCollapse" class="accordion-collapse collapse" data-bs-parent="#criteriaAccordion">
+                    <div class="accordion-body">
+                        <p><strong>Atmosphere:</strong> People make pubs. The noise, the crowd, the staff.</p>
+                        <p><i>The ideal pub feels busy and sounds of people having fun. There's a mix of people including a core of regulars. Friendly bar staff and no or low volume music.</i></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#characterCollapse">
+                        Character
+                    </button>
+                </h2>
+                <div id="characterCollapse" class="accordion-collapse collapse" data-bs-parent="#criteriaAccordion">
+                    <div class="accordion-body">
+                        <p><strong>Character:</strong> The aesthetic features and style of the pub.</p>
+                        <p><i>The ideal pub has stood the test of time with the wooden features to show for it. It serves pints first and foremost. Food might be served but isn't the focus.</i></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#drinksCollapse">
+                        Drinks
+                    </button>
+                </h2>
+                <div id="drinksCollapse" class="accordion-collapse collapse" data-bs-parent="#criteriaAccordion">
+                    <div class="accordion-body">
+                        <p><strong>Drinks:</strong> The range and selection of pints on offer, and their value.</p>
+                        <p><i>The ideal pub has premium and budget pints, some hand-pump ales and a great Guinness, all for a fair price.</i></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#facilitiesCollapse">
+                        Facilities
+                    </button>
+                </h2>
+                <div id="facilitiesCollapse" class="accordion-collapse collapse" data-bs-parent="#criteriaAccordion">
+                    <div class="accordion-body">
+                        <p><strong>Facilities:</strong> The physical features of the pub.</p>
+                        <p><i>The ideal pub has a spacious interior, a sunny beer garden, and a darts board and a pool table.</i></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#locationCollapse">
+                        Location
+                    </button>
+                </h2>
+                <div id="locationCollapse" class="accordion-collapse collapse" data-bs-parent="#criteriaAccordion">
+                    <div class="accordion-body">
+                        <p><strong>Location:</strong> The geographical location of the pub, considering the neighbourhood, transport options and immediate surroundings.</p>
+                        <p><i>The ideal pub is in vibrant part of town, a short walk from a Tube stop. It is away from busy roads and is overlooking a body of water.</i></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // Initialise the map
@@ -197,27 +273,27 @@
                 const markerIcon = L.divIcon({
                     className: 'custom-icon',
                     html: `<div style="
-                                    background-color: ${markerStyle.fillColor};
-                                    width: 25px;
-                                    height: 25px;
-                                    border: ${markerStyle.border};
-                                    border-radius: ${markerStyle.borderRadius};
-                                "></div>`,
+                                        background-color: ${markerStyle.fillColor};
+                                        width: 25px;
+                                        height: 25px;
+                                        border: ${markerStyle.border};
+                                        border-radius: ${markerStyle.borderRadius};
+                                    "></div>`,
                     iconSize: [25, 25],
                     iconAnchor: [12, 25],
                     popupAnchor: [1, -34]
                 });
 
                 const popupContent = `
-                                <b>${pub.Pub}</b><br>
-                                ${pub.isUserEntry ? '<i>Your entry</i><br>' : ''}
-                                Total Score: ${pub.Total}<br>
-                                Atmosphere: ${pub.Atmos}<br
-                                Character: ${pub.Character}<br>
-                                Drinks: ${pub.Drinks}<br>
-                                Facilities: ${pub.Facilities}<br>
-                                Location: ${pub.Location}
-                            `;
+                                    <b>${pub.Pub}</b><br>
+                                    ${pub.isUserEntry ? '<i>Your entry</i><br>' : ''}
+                                    Total Score: ${pub.Total}<br>
+                                    Atmosphere: ${pub.Atmos}<br
+                                    Character: ${pub.Character}<br>
+                                    Drinks: ${pub.Drinks}<br>
+                                    Facilities: ${pub.Facilities}<br>
+                                    Location: ${pub.Location}
+                                `;
 
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
@@ -724,12 +800,12 @@
                 const markerIcon = L.divIcon({
                     className: 'custom-icon',
                     html: `<div style="
-                        background-color: ${markerColor};
-                        width: 25px;
-                        height: 25px;
-                        border-radius: 50%;
-                        ${pub.isUserEntry ? 'border: 3px solid #3366ff; box-shadow: 0 0 5px #3366ff;' : ''}
-                    "></div>`,
+                            background-color: ${markerColor};
+                            width: 25px;
+                            height: 25px;
+                            border-radius: 50%;
+                            ${pub.isUserEntry ? 'border: 3px solid #3366ff; box-shadow: 0 0 5px #3366ff;' : ''}
+                        "></div>`,
                     iconSize: [25, 25],
                     iconAnchor: [12, 25],
                     popupAnchor: [1, -34]
@@ -738,14 +814,14 @@
                 L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`<b>${pub.Pub}</b><br>
-                                ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
-                                Total Score: ${pub.Total}<br>
-                                Atmosphere: ${pub.Atmos}<br>
-                                Character: ${pub.Character}<br>
-                                Drinks: ${pub.Drinks}<br>
-                                Facilities: ${pub.Facilities}<br>
-                                Location: ${pub.Location}
-                            `);
+                                    ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
+                                    Total Score: ${pub.Total}<br>
+                                    Atmosphere: ${pub.Atmos}<br>
+                                    Character: ${pub.Character}<br>
+                                    Drinks: ${pub.Drinks}<br>
+                                    Facilities: ${pub.Facilities}<br>
+                                    Location: ${pub.Location}
+                                `);
             });
         };
     </script>
@@ -887,12 +963,12 @@
                     const markerIcon = L.divIcon({
                         className: 'custom-icon',
                         html: `<div style="
-                            background-color: ${markerColor};
-                            width: 25px;
-                            height: 25px;
-                            border-radius: 50%;
-                            ${pub.isUserEntry ? 'border: 3px solid #3366ff; box-shadow: 0 0 5px #3366ff;' : ''}
-                        "></div>`,
+                                background-color: ${markerColor};
+                                width: 25px;
+                                height: 25px;
+                                border-radius: 50%;
+                                ${pub.isUserEntry ? 'border: 3px solid #3366ff; box-shadow: 0 0 5px #3366ff;' : ''}
+                            "></div>`,
                         iconSize: [25, 25],
                         iconAnchor: [12, 25],
                         popupAnchor: [1, -34]
@@ -901,14 +977,14 @@
                     L.marker([pub.latitude, pub.longitude], { icon: markerIcon })
                         .addTo(map)
                         .bindPopup(`<b>${pub.Pub}</b><br>
-                                    ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
-                                    Total Score: ${pub.Total}<br>
-                                    Atmosphere: ${pub.Atmos}<br>
-                                    Character: ${pub.Character}<br>
-                                    Drinks: ${pub.Drinks}<br>
-                                    Facilities: ${pub.Facilities}<br>
-                                    Location: ${pub.Location}<br>
-                                `);
+                                        ${pub.isUserEntry ? '<i>Your pub entry</i><br>' : ''}
+                                        Total Score: ${pub.Total}<br>
+                                        Atmosphere: ${pub.Atmos}<br>
+                                        Character: ${pub.Character}<br>
+                                        Drinks: ${pub.Drinks}<br>
+                                        Facilities: ${pub.Facilities}<br>
+                                        Location: ${pub.Location}<br>
+                                    `);
                 });
             };
 
